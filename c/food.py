@@ -11,6 +11,10 @@ import datetime
 def page(content):
     return '<!DOCTYPE html>' + t.html(
         t.head(
+            '''
+            <meta name="viewport"
+                  content="width=device-width, initial-scale=1, user-scalable=no">
+            ''',
             t.link(rel='stylesheet', href='/static/framework.css'),
             '''
             <script
