@@ -1,0 +1,37 @@
+.day{
+    font-family: serif;
+    background-color: #f6cc99;
+    color: maroon;
+    margin-bottom: 1rem;
+    padding: 1rem;
+    gap: 1rem;
+    border-radius: 1rem;
+}
+.day.today{
+    background-color: #DA7c95;
+    color: white;
+}
+.day-letter{
+    font-size: 5rem;
+    width: 5rem;
+}
+.meal{
+    font-size: 1rem;
+    margin: 0.25rem;
+    font-family: sans-serif;
+    /* /\* make upper *\/ */
+    /* text-transform: uppercase; */
+}
+
+.action-prompt h1{
+    margin: 0;
+    padding: 0;
+}
+
+.action-prompt button{
+    padding: 1rem;
+}
+
+.action-prompt input{
+    font-size: 120%;
+}

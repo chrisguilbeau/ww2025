@@ -1,0 +1,73 @@
+.flex-row,
+.flex-col,
+.flex-col-stretch,
+.flex-row-stretch{
+    flex-shrink: 0;
+}
+
+li{
+    flex-shrink: 1;
+}
+
+.flex-center{
+    align-items: center;
+}
+
+.flex-col{
+    display: inline-flex;
+    flex-direction: column;
+}
+
+.flex-container{
+    position: relative;
+}
+
+.flex-col-stretch{
+    display: flex;
+    flex-direction: column;
+}
+
+.flex-expand{
+    position: absolute;
+    top:0;
+    left:0;
+    right:0;
+    bottom:0;
+}
+
+.flex-gap{
+    gap: 1rem;
+}
+
+.flex-row, .flex-row-stretch{
+    flex-direction: row;
+    }
+
+.flex-row{
+    display: inline-flex;
+}
+
+.flex-row-stretch{
+    display: flex;
+}
+
+.flex-tight{
+    flex-grow: 0;
+}
+
+.flex-grow-children > *{
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.flex-grow{
+    flex-grow: 1;
+    flex-shrink: 1;
+}
+
+.flex-wrap{
+    flex-wrap: wrap;
+}
+
+
+
