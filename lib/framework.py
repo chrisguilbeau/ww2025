@@ -96,30 +96,7 @@ class Stream(Action):
         return self.announcer.getStream()
     @classmethod
     def getInitJs(cls):
-        return f'''
-        var evtSource = new EventSource('{cls.url}');
-
-        // Process incoming messages
-        evtSource.onmessage = function(event) {{
-            {cls.messageProcessor}(event.data);
-        }};
-
-        // Handle connection opening
-        evtSource.onopen = function(event) {{
-            console.log('Connection to event stream established');
-        }};
-
-        // Handle errors and reconnection
-        evtSource.onerror = function(event) {{
-            console.error('EventSource connection error:', event);
-
-            // Connection state (0=connecting, 1=open, 2=closed)
-            if (evtSource.readyState === 2) {{
-                console.log('Connection lost. Reconnecting...');
-                // Consider notifying user about disconnection here
-            }}
-        }};
-        '''
+        return f'action.messageInit({json_encode(cls.url)}, {cls.messageProcessor});'
 
 def page(headStuff=(), bodyStuff=(), title=None):
     title = t.title(title) if title else ''
