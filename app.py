@@ -4,6 +4,19 @@ from lib.view import View
 from lib.myflask import request
 from lib.myflask import abort
 from lib.myflask import app
+from collections import namedtuple
+
+def yieldKwargs():
+    # first yield any args passed on query string
+    for key, value in request.args.items():
+        yield key, value
+    # then yield any args passed in form data
+    for key, value in request.form.items():
+        yield key, value
+    # finally yield any args passed in json body
+    if request.is_json:
+        for key, value in request.json.items():
+            yield key, value
 
 modules = {}
 
@@ -17,18 +30,6 @@ def loadControllersAndViews():
                 modulePath = f"{root}.{module_name}"
                 modules[modulePath] = importlib.import_module(modulePath)
     print(modules)
-
-def yieldKwargs():
-    # first yield any args passed on query string
-    for key, value in request.args.items():
-        yield key, value
-    # then yield any args passed in form data
-    for key, value in request.form.items():
-        yield key, value
-    # finally yield any args passed in json body
-    if request.is_json:
-        for key, value in request.json.items():
-            yield key, value
 
 def getRoute(router, path):
     '''
@@ -45,6 +46,8 @@ def getRoute(router, path):
             return route, parts[lenParts-i:]
     return None, None
 
+Handler = namedtuple('Handler', 'controller view method args kwargs')
+
 def getHandler(path, method):
     print('getting handler for', path, method)
     route, args = getRoute(Controller, path)
@@ -52,30 +55,33 @@ def getHandler(path, method):
     view = View.routes.get(route)
     method = request.method.lower()
     print('using', controller, view, method)
-    if controller and not view:
-        class ControllerOnly(controller):
-            def _doRequest(self):
-                return getattr(self, method)(*args, **dict(yieldKwargs()))
-        return ControllerOnly()
-    elif controller and view:
-        class ControllerAndView(controller, view):
-            def _doRequest(self, *args, **kwargs):
-                getattr(self, method)(*args, **dict(yieldKwargs()))
-                return self.getContent()
-        return ControllerAndView()
-    else:
-        return None
+    return Handler(controller, view, method, args, dict(yieldKwargs()))
+    # if controller and not view:
+    #     class ControllerOnly(controller):
+    #         url = controller.url
+    #         def _doRequest(self):
+    #             return getattr(self, method)(*args, **dict(yieldKwargs()))
+    #     return ControllerOnly()
+    # elif controller and view:
+    #     class ControllerAndView(controller, view):
+    #         url = controller.url
+    #         def _doRequest(self, *args, **kwargs):
+    #             getattr(self, method)(*args, **dict(yieldKwargs()))
+    #             return self.getContent()
+    #     return ControllerAndView()
+    # else:
+    #     return None
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def dispatcher(path):
     method = request.method.lower()
     handler = getHandler(path, method)
-    if handler and hasattr(handler, method):
-        return handler.doAuth() or handler._doRequest()
+    doNow = getattr(handler.controller(), method, None)
+    if doNow:
+        return doNow(*handler.args, **handler.kwargs)
     else:
         return abort(404)
-
 
 if __name__ == '__main__':
     loadControllersAndViews()

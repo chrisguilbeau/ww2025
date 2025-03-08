@@ -108,6 +108,8 @@ def page(headStuff=(), bodyStuff=(), title=None):
             <meta name="viewport"
                   content="width=device-width, initial-scale=1, user-scalable=no">
             ''',
+            # set fave icon
+            t.link(rel='icon', href='/static/favicon.ico'),
             t.link(rel='stylesheet', href='/static/framework.css'),
             '''
             <script

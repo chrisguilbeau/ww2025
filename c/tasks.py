@@ -16,7 +16,6 @@ def page(content):
     return _page(
         headStuff=(
             t.title('Tasks'),
-            t.link(rel='stylesheet', href='/static/tasks.css'),
             t.script(src='/static/tasks.js'),
             t.script(stream.getInitJs()),
         ),

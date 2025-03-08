@@ -1,7 +1,7 @@
 class Router:
     _abstract_ = True
     routerType = 'Router'
-    routes = None # must be overridden!
+    routes = None  # must be overridden!
 
     @classmethod
     def _addRoute(cls, parts):
@@ -19,4 +19,3 @@ class Router:
             cls.url = '/' + cls._addRoute(parts[1:])
             if parts[-1] == 'index':
                 cls._addRoute(parts[1:-1])
-

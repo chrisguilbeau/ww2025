@@ -5,6 +5,7 @@ class Controller(Router):
     _abstract_ = True
     routerType = 'Controller'
     routes = {}
+    method = None
     def doAuth(self):
         '''
         Return response if not authenticated or
