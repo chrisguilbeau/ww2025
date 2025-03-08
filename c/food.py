@@ -3,10 +3,11 @@ from cgpy.tags     import t
 from lib.framework import Action
 from lib.framework import ControllerPublic
 from lib.framework import html_encode
+from lib.framework import let
+from lib.framework import page as _page
 from lib.framework import Stream
 from lib.messager  import MessageAnnouncer
 from m.food        import Food
-from lib.framework import page as _page
 
 import datetime
 
@@ -55,16 +56,64 @@ class index(ControllerPublic):
 class meal(Action):
     def get(self, year, doy, meal):
         row = Food.getOne(year=year, doy=doy, meal=meal)
-        return t.button(
-            html_encode(row.desc) if row else '--',
-            id=f'food-{year}-{doy}-{meal}',
-            onclick=editmeal.getPrompt(
-                year=year,
-                doy=doy,
-                meal=meal,
+        @let
+        def radios():
+            if not row:
+                return
+            statuses = ['Planned', 'Bought']
+            for i in range(2):
+                status = statuses[i]
+                baseId = f'food-{year}-{doy}-{meal}'
+                id = f'{baseId}-{i}'
+                yield t.div(
+                    t.input(
+                        type='radio',
+                        name=baseId,
+                        value=str(i),
+                        checked=i == row.status,
+                        id=id,
+                        onchange=self.getActJs(
+                            year=year,
+                            doy=doy,
+                            meal=meal,
+                            status=i,
+                            ),
+                        ),
+                    t.label(status, for_=id),
+                    _class='flex-col flex-center',
+                    )
+        return t.div(
+            t.button(
+                html_encode(row.desc) if row else '--',
+                onclick=editmeal.getPrompt(
+                    year=year,
+                    doy=doy,
+                    meal=meal,
+                    ),
+                _class='meal',
                 ),
-            _class='meal',
+            radios if row else '',
+            id=f'food-{year}-{doy}-{meal}',
+            _class='flex-row flex-center flex-gap',
+            style='margin: 1rem;',
             )
+    def validate(self, year, doy, meal, status):
+        pass
+    def act(self, year, doy, meal, status):
+        Food.execute(
+            '''
+            update food
+            set status = ?
+            where year = ?
+            and doy = ?
+            and meal = ?
+            ''',
+            (status, year, doy, meal),
+            )
+        id = f'food-{year}-{doy}-{meal}'
+        url = f'/food/meal/{year}/{doy}/{meal}'
+        stream.announcer.announce(f'{id}:{url}')
+        return {}
 
 class editmeal(Action):
     def getDt(self, year, doy):
@@ -119,10 +168,10 @@ class editmeal(Action):
         if desc:
             Food.execute(
                 '''
-                insert into food (year, doy, meal, desc)
-                values (?, ?, ?, ?)
+                insert into food (year, doy, meal, desc, status)
+                values (?, ?, ?, ?, ?)
                 ''',
-                (year, doy, meal, desc),
+                (year, doy, meal, desc, 0),
                 )
         id = f'food-{year}-{doy}-{meal}'
         url = f'/food/meal/{year}/{doy}/{meal}'

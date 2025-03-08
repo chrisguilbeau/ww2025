@@ -1,3 +1,8 @@
+input[type='radio']{
+    height: 2rem;
+    width: 2rem;
+}
+
 .day{
     font-family: serif;
     background-color: #f6cc99;
@@ -21,6 +26,22 @@
     font-family: sans-serif;
     /* /\* make upper *\/ */
     /* text-transform: uppercase; */
+}
+
+.status{
+    border: 1px solid black;
+    border-radius: 0.5rem;
+    padding: 1rem;
+    color: black;
+    background-color: lightgray;
+}
+
+.status.current{
+    background-color: gold;
+}
+
+.status.1.current{
+    background-color: lightgreen;
 }
 
 .action-prompt h1{

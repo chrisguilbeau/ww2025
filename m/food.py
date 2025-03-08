@@ -9,6 +9,7 @@ class Food(Table):
         'doy integer',
         'meal integer',
         'desc text',
+        'status integer',
         )
     def getNextSevenDays(self):
         sql = '''

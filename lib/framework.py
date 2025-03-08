@@ -1,9 +1,10 @@
+from cgpy.lets      import let # noqa
+from cgpy.lets      import returnAs # noqa
+from cgpy.tags      import t
 from html           import escape as html_encode
 from itertools      import count
 from json           import dumps as json_encode
 from lib.controller import Controller
-from cgpy.tags      import t
-from cgpy.lets      import returnAs # noqa
 
 class ControllerPublic(Controller):
     def doAuth(self):
