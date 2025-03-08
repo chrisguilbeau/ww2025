@@ -2,6 +2,8 @@ from html           import escape as html_encode
 from itertools      import count
 from json           import dumps as json_encode
 from lib.controller import Controller
+from cgpy.tags      import t
+from cgpy.lets      import returnAs # noqa
 
 class ControllerPublic(Controller):
     def doAuth(self):
@@ -82,5 +84,63 @@ class Action(ControllerPublic):
         result = self._validate(*args, **kwargs) or self._act(*args, **kwargs)
         assert isinstance(result, dict), 'Action must return a dictionary or yield dict items'
         return json_encode(result)
-    def updateParent(self, parentId):
-        ANNOUNCER.announce(f'tc_{parentId}:/taskchildren/{parentId or ""}')
+
+class Stream(Action):
+    announcer = None
+    messageProcessor = None
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        assert cls.announcer, 'Stream subclass must define announcer'
+        assert cls.messageProcessor, 'Stream subclass must define messageProcessor'
+    def get(self):
+        return self.announcer.getStream()
+    @classmethod
+    def getInitJs(cls):
+        return f'''
+        var evtSource = new EventSource('{cls.url}');
+
+        // Process incoming messages
+        evtSource.onmessage = function(event) {{
+            {cls.messageProcessor}(event.data);
+        }};
+
+        // Handle connection opening
+        evtSource.onopen = function(event) {{
+            console.log('Connection to event stream established');
+        }};
+
+        // Handle errors and reconnection
+        evtSource.onerror = function(event) {{
+            console.error('EventSource connection error:', event);
+
+            // Connection state (0=connecting, 1=open, 2=closed)
+            if (evtSource.readyState === 2) {{
+                console.log('Connection lost. Reconnecting...');
+                // Consider notifying user about disconnection here
+            }}
+        }};
+        '''
+
+def page(headStuff=(), bodyStuff=(), title=None):
+    title = t.title(title) if title else ''
+    return '<!DOCTYPE html>' + t.html(
+        t.head(
+            title,
+            '''
+            <meta name="viewport"
+                  content="width=device-width, initial-scale=1, user-scalable=no">
+            ''',
+            t.link(rel='stylesheet', href='/static/framework.css'),
+            '''
+            <script
+                src="https://code.jquery.com/jquery-3.7.1.min.js"
+                integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+                crossorigin="anonymous">
+            </script>
+            ''',
+            t.link(rel='stylesheet', href='/static/flex.css'),
+            t.script(src='/static/framework.js'),
+            headStuff,
+            ),
+        t.body(bodyStuff),
+        )

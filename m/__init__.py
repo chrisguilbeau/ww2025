@@ -1,7 +1,6 @@
 import sqlite3
 from collections import namedtuple
 from cgpy.lets import letAs
-from cgpy.lets import returnAs
 
 def singleton(cls):
     return cls()
@@ -84,39 +83,3 @@ class Table():
         print(sql)
         c.execute(sql, params)
         cnn.commit()
-
-@singleton
-class Task(Table):
-    name = 'task'
-    columns = (
-        'id INTEGER PRIMARY KEY',
-        'title TEXT NOT NULL',
-        'description TEXT',
-        'parent INTEGER',
-        'completed DATETIME',
-        'reset DATETIME',
-        )
-    @returnAs(tuple)
-    def getClosure(self, id):
-        '''
-        Return the id of the task along with all of its children
-        '''
-        yield id
-        for child in self.getAll(parent=id):
-            yield from self.getClosure(child.id)
-    def delete(self, id):
-        '''
-        Delete a task and all of its children
-        '''
-        for id in self.getClosure(id):
-            print('Deleting', id)
-            self.execute(f'delete from task where id = {id};')
-    def update(self, id, **kwargs):
-        '''
-        Update task attributes
-        '''
-        self.execute(f'''
-            update task
-            set {', '.join(f'{k} = {repr(v)}' for k, v in kwargs.items())}
-            where id = {id};
-            ''')

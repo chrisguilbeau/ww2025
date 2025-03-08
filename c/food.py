@@ -3,49 +3,28 @@ from cgpy.tags     import t
 from lib.framework import Action
 from lib.framework import ControllerPublic
 from lib.framework import html_encode
+from lib.framework import Stream
 from lib.messager  import MessageAnnouncer
 from m.food        import Food
+from lib.framework import page as _page
 
 import datetime
 
+class stream(Stream):
+    announcer = MessageAnnouncer()
+    messageProcessor = 'food.process'
+
 def page(content):
-    return '<!DOCTYPE html>' + t.html(
-        t.head(
-            '''
-            <meta name="viewport"
-                  content="width=device-width, initial-scale=1, user-scalable=no">
-            ''',
-            t.link(rel='stylesheet', href='/static/framework.css'),
-            '''
-            <script
-                src="https://code.jquery.com/jquery-3.7.1.min.js"
-                integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
-                crossorigin="anonymous">
-            </script>
-            ''',
+    return _page(
+        headStuff=(
             t.title('Food'),
             t.link(rel='stylesheet', href='/static/flex.css'),
             t.link(rel='stylesheet', href='/static/food.css'),
-            t.script(src='/static/framework.js'),
             t.script(src='/static/food.js'),
             t.script(stream.getInitJs()),
             ),
-        t.body(content),
+        bodyStuff=content,
         )
-
-class stream(Action):
-    announcer = MessageAnnouncer()
-    messageProcessor = 'food.process'
-    def get(self):
-        return self.announcer.getStream()
-    @classmethod
-    def getInitJs(cls):
-        return f'''
-        var evtSource = new EventSource('{cls.url}');
-        evtSource.onmessage = function(event) {{
-            {cls.messageProcessor}(event.data);
-        }};
-        '''
 
 class index(ControllerPublic):
     @returnAs(page)
