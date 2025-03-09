@@ -7,6 +7,9 @@ from lib.myflask import app
 from collections import namedtuple
 from cgpy.lets import let
 
+modules = {}
+Handler = namedtuple('Handler', 'controller view method args kwargs')
+
 def yieldKwargs():
     # first yield any args passed on query string
     for key, value in request.args.items():
@@ -19,7 +22,6 @@ def yieldKwargs():
         for key, value in request.json.items():
             yield key, value
 
-modules = {}
 
 @let
 def loadControllersAndViews():
@@ -50,7 +52,6 @@ def getRoute(router, path):
             return route, parts[lenParts-i:]
     return None, None
 
-Handler = namedtuple('Handler', 'controller view method args kwargs')
 
 def getHandler(path, method):
     print('getting handler for', path, method)
@@ -61,21 +62,6 @@ def getHandler(path, method):
     print(Controller.routes)
     print('using', controller, view, method)
     return Handler(controller, view, method, args, dict(yieldKwargs()))
-    # if controller and not view:
-    #     class ControllerOnly(controller):
-    #         url = controller.url
-    #         def _doRequest(self):
-    #             return getattr(self, method)(*args, **dict(yieldKwargs()))
-    #     return ControllerOnly()
-    # elif controller and view:
-    #     class ControllerAndView(controller, view):
-    #         url = controller.url
-    #         def _doRequest(self, *args, **kwargs):
-    #             getattr(self, method)(*args, **dict(yieldKwargs()))
-    #             return self.getContent()
-    #     return ControllerAndView()
-    # else:
-    #     return None
 
 @app.route('/', defaults={'path': ''}, methods=['GET', 'POST', 'PUT', 'DELETE'])
 @app.route('/<path:path>', methods=['GET', 'POST', 'PUT', 'DELETE'])
@@ -89,8 +75,8 @@ def dispatcher(path):
         return str((Controller.routes, path, handler.args, handler.kwargs))
         return abort(404)
 
+
 if __name__ == '__main__':
-    loadControllersAndViews()
     app.run(
         debug=True,
         port=3000,

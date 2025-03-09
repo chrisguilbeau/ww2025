@@ -9,7 +9,7 @@ from lib.framework import Action
 from lib.framework import html_encode
 
 class stream(Stream):
-    announcer = MessageAnnouncer()
+    announcer = MessageAnnouncer('tasks')
     messageProcessor = 'tasks.process'
 
 def page(content):

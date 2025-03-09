@@ -12,7 +12,7 @@ from m.food        import Food
 import datetime
 
 class stream(Stream):
-    announcer = MessageAnnouncer()
+    announcer = MessageAnnouncer('food')
     messageProcessor = 'food.process'
 
 def page(content):
