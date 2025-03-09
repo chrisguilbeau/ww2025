@@ -1,6 +1,7 @@
-import subprocess
-import time
 from lib.myflask import Response
+import subprocess
+import threading
+import time
 
 def tail_f_generator(file_path):
     """
@@ -29,6 +30,18 @@ def tail_f_generator(file_path):
 class MessageAnnouncer:
     def __init__(self, id):
         self.file_path = f'{id}-messages.txt'
+        self.keepalive_interval = 10  # seconds
+        # Start a background thread to send keep-alive messages
+        self._keepalive_thread = threading.Thread(
+            target=self._keepalive_loop, daemon=True)
+        self._keepalive_thread.start()
+
+    def _keepalive_loop(self):
+        while True:
+            # Using a comment line for keep-alive (SSE clients ignore lines
+            # starting with ":")
+            self.announce("keepalive")
+            time.sleep(self.keepalive_interval)
 
     def announce(self, msg):
         """
@@ -42,4 +55,5 @@ class MessageAnnouncer:
         """
         Returns a Flask Response that uses the tail_f_generator to stream events.
         """
-        return Response(tail_f_generator(self.file_path), mimetype='text/event-stream')
+        return Response(tail_f_generator(self.file_path),
+                        mimetype='text/event-stream')

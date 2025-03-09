@@ -17,7 +17,10 @@ var action = {
     },
     messageInit: function(url, processor) {
         const es = new EventSource(url);
-        es.onmessage = event => processor(event.data);
+        es.onmessage = event => {
+	    if (event.data != 'keepalive')
+		processor(event.data);
+	};
         es.onerror = event => {
             console.error("SSE error detected, reloading page.", event);
             location.reload();
