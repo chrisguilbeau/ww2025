@@ -5,6 +5,7 @@ from lib.myflask import request
 from lib.myflask import abort
 from lib.myflask import app
 from collections import namedtuple
+from cgpy.lets import let
 
 def yieldKwargs():
     # first yield any args passed on query string
@@ -20,10 +21,13 @@ def yieldKwargs():
 
 modules = {}
 
+@let
 def loadControllersAndViews():
     import os
     for root in ['c', 'v']:
-        for file in os.listdir(os.path.join(os.path.dirname(__file__), root)):
+        path = os.path.join(os.path.dirname(__file__), root)
+        print('loading from', path)
+        for file in os.listdir(path):
             print(file)
             if file.endswith(".py"):
                 module_name = file[:-3]
@@ -54,6 +58,7 @@ def getHandler(path, method):
     controller = Controller.routes.get(route)
     view = View.routes.get(route)
     method = request.method.lower()
+    print(Controller.routes)
     print('using', controller, view, method)
     return Handler(controller, view, method, args, dict(yieldKwargs()))
     # if controller and not view:
@@ -77,10 +82,11 @@ def getHandler(path, method):
 def dispatcher(path):
     method = request.method.lower()
     handler = getHandler(path, method)
-    doNow = getattr(handler.controller(), method, None)
+    doNow = handler.controller and getattr(handler.controller(), method, None)
     if doNow:
         return doNow(*handler.args, **handler.kwargs)
     else:
+        return str((Controller.routes, path, handler.args, handler.kwargs))
         return abort(404)
 
 if __name__ == '__main__':
