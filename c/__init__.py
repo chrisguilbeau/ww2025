@@ -11,7 +11,6 @@ class index(ControllerPublic):
             )
     @returnAs(t.div, _class='flex-col-stretch flex-expand')
     def content(self):
-        yield t.h1('Wonder Wall')
         yield t.style('''
             iframe {
                    border: none;
@@ -20,7 +19,8 @@ class index(ControllerPublic):
                          }
             ''')
         yield t.div(
-            t.iframe(src='/tasks'),
-            t.iframe(src='/food'),
+            t.div(t.iframe(src='/weather'),),
+            t.div(t.iframe(src='/tasks'),),
+            t.div(t.iframe(src='/food'), _class='flex-grow',),
             _class='flex-row-stretch flex-grow',
             )

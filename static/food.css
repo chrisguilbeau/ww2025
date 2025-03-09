@@ -1,13 +1,32 @@
 input[type='radio']{
-    height: 2rem;
-    width: 2rem;
+    height: 1rem;
+    width: 1rem;
+}
+
+.day h1{
+    font-size: 5rem;
+    font-weight: normal;
+    margin: 0;
+    padding: 0;
+    width: 5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.meal button.status{
+    color: grey;
+}
+
+.meal button.selected{
+    background-color: blue;
+    color: white;
 }
 
 .day{
     font-family: serif;
     background-color: #f6cc99;
     color: maroon;
-    margin-bottom: 1rem;
     padding: 1rem;
     gap: 1rem;
     border-radius: 1rem;
@@ -22,26 +41,7 @@ input[type='radio']{
 }
 .meal{
     font-size: 1rem;
-    margin: 0.25rem;
     font-family: sans-serif;
-    /* /\* make upper *\/ */
-    /* text-transform: uppercase; */
-}
-
-.status{
-    border: 1px solid black;
-    border-radius: 0.5rem;
-    padding: 1rem;
-    color: black;
-    background-color: lightgray;
-}
-
-.status.current{
-    background-color: gold;
-}
-
-.status.1.current{
-    background-color: lightgreen;
 }
 
 .action-prompt h1{

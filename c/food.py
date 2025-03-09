@@ -29,7 +29,7 @@ def page(content):
 
 class index(ControllerPublic):
     @returnAs(page)
-    @returnAs(t.div, _class='flex-col-stretch')
+    @returnAs(t.div, _class='flex-col-stretch flex-gap')
     def get(self, *args, **kwargs):
         now = datetime.datetime.now()
         year = now.year
@@ -41,12 +41,12 @@ class index(ControllerPublic):
             _class = 'today ' if isToday else ''
             _class += 'day flex-row flex-center'
             yield t.div(
-                t.div(dayLetter, _class='day-letter flex-col flex-center'),
+                t.h1(dayLetter),
                 t.div(
                     meal.getNow(year, doy, 1),
                     meal.getNow(year, doy, 2),
                     meal.getNow(year, doy, 3),
-                    _class='flex-col',
+                    _class='flex-col flex-grow',
                     ),
                 _class=_class,
                 )
@@ -64,23 +64,16 @@ class meal(Action):
             for i in range(2):
                 status = statuses[i]
                 baseId = f'food-{year}-{doy}-{meal}'
-                id = f'{baseId}-{i}'
-                yield t.div(
-                    t.input(
-                        type='radio',
-                        name=baseId,
-                        value=str(i),
-                        checked=i == row.status,
-                        id=id,
-                        onchange=self.getActJs(
-                            year=year,
-                            doy=doy,
-                            meal=meal,
-                            status=i,
-                            ),
+                selected = i == row.status
+                yield t.button(
+                    status,
+                    onclick=self.getActJs(
+                        year=year,
+                        doy=doy,
+                        meal=meal,
+                        status=i,
                         ),
-                    t.label(status, for_=id),
-                    _class='flex-col flex-center',
+                    _class='status selected' if selected else 'status',
                     )
         return t.div(
             t.button(
@@ -90,12 +83,11 @@ class meal(Action):
                     doy=doy,
                     meal=meal,
                     ),
-                _class='meal',
+                _class='flex-grow',
                 ),
             radios if row else '',
             id=f'food-{year}-{doy}-{meal}',
-            _class='flex-row flex-center flex-gap',
-            style='margin: 1rem;',
+            _class='meal flex-row-stretch flex-center flex-gap',
             )
     def validate(self, year, doy, meal, status):
         pass

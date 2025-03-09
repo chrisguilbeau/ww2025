@@ -10,7 +10,7 @@ def tail_f_generator(file_path):
     """
     # Start tailing the file from its current end
     process = subprocess.Popen(
-        ['tail', '-n', '0', '-f', file_path],
+        ['/usr/bin/tail', '-n', '0', '-f', file_path],
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
