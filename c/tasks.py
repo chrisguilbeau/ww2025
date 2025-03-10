@@ -18,7 +18,7 @@ def page(content):
             t.title('Tasks'),
             t.script(src='/static/tasks.js'),
             t.script(stream.getInitJs()),
-        ),
+            ),
         bodyStuff=content,
         )
 

@@ -1,7 +1,29 @@
 from lib.framework import ControllerPublic
+from lib.framework import page as _page
+from lib.framework import Stream
+from lib.framework import t
+from lib.messager  import MessageAnnouncer
+
+class stream(Stream):
+    announcer = MessageAnnouncer(
+        id='weather',
+        timeDict={'refreshInner': 600},
+        )
+    messageProcessor = 'weather.process'
 
 class index(ControllerPublic):
     def get(self, *args, **kwargs):
+        return _page(
+            headStuff=(
+                t.script(src='/static/weather.js'),
+                t.script(stream.getInitJs()),
+                ),
+            bodyStuff=t.div(inner.getNow(), id='weather'),
+            )
+
+class inner(ControllerPublic):
+    def get(self):
+        from datetime import datetime
         yield '''
 <script>
         (function(d, s, id) {
@@ -43,3 +65,5 @@ class index(ControllerPublic):
           </a>
         </div>
         '''
+        yield t.p()
+        yield t.i('last updated ', datetime.now().strftime('%I:%M %p'))

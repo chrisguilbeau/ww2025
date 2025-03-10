@@ -12,7 +12,9 @@ from m.food        import Food
 import datetime
 
 class stream(Stream):
-    announcer = MessageAnnouncer('food')
+    announcer = MessageAnnouncer(
+        id='food',
+        )
     messageProcessor = 'food.process'
 
 def page(content):
@@ -29,6 +31,10 @@ def page(content):
 
 class index(ControllerPublic):
     @returnAs(page)
+    def get(self):
+        return food.getNow()
+
+class food(Action):
     @returnAs(t.div, _class='flex-col-stretch flex-gap')
     def get(self, *args, **kwargs):
         now = datetime.datetime.now()
@@ -63,7 +69,6 @@ class meal(Action):
             statuses = ['Planned', 'Bought']
             for i in range(2):
                 status = statuses[i]
-                baseId = f'food-{year}-{doy}-{meal}'
                 selected = i == row.status
                 yield t.button(
                     status,

@@ -13,6 +13,9 @@ class Controller(Router):
         nothing to pass
         '''
         raise NotImplementedError
+    @classmethod
+    def getNow(cls, *args, **kwargs):
+        return cls().get(*args, **kwargs)
     def get(self, *args, **kwargs):
         raise NotImplementedError
     def post(self, *args, **kwargs):

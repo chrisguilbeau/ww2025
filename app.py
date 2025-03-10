@@ -22,7 +22,6 @@ def yieldKwargs():
         for key, value in request.json.items():
             yield key, value
 
-
 @let
 def loadControllersAndViews():
     import os
@@ -51,7 +50,6 @@ def getRoute(router, path):
         if route in router.routes:
             return route, parts[lenParts-i:]
     return None, None
-
 
 def getHandler(path, method):
     print('getting handler for', path, method)
