@@ -1,27 +1,12 @@
-from lib.framework import ControllerPublic
-from lib.framework import page as _page
-from lib.framework import Stream
-from lib.framework import t
-from lib.messager  import MessageAnnouncer
+from lib.framework   import ControllerPublic
+from lib.framework   import returnAs
+from lib.framework   import stream
+from lib.framework   import t
 
-class stream(Stream):
-    announcer = MessageAnnouncer(
-        id='weather',
-        timeDict={'refreshInner': 600},
-        )
-    messageProcessor = 'weather.process'
-
-class index(ControllerPublic):
-    def get(self, *args, **kwargs):
-        return _page(
-            headStuff=(
-                t.script(src='/static/weather.js'),
-                t.script(stream.getInitJs()),
-                ),
-            bodyStuff=t.div(inner.getNow(), id='weather'),
-            )
-
-class inner(ControllerPublic):
+class weather(ControllerPublic):
+    if 'weather' not in stream.announcer.timeDict:
+        stream.announcer.timeDict['weather'] = 10
+    @returnAs(t.div, id='weather', **{'data-url': '/weather/weather'})
     def get(self):
         from datetime import datetime
         yield '''

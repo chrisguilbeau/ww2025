@@ -1,4 +1,4 @@
-var action = {
+var framework = {
     prompt: function(url, params){
 	let html = $('html');
 	let screen = $('<div/>', {class: 'action-screen'});
@@ -18,13 +18,32 @@ var action = {
     messageInit: function(url, processor) {
         const es = new EventSource(url);
         es.onmessage = event => {
-	    if (event.data != 'keepalive')
+	    if (event.data != 'keepalive'){
+		console.log(event.data);
 		processor(event.data);
+	    }
 	};
         es.onerror = event => {
             console.error("SSE error detected, reloading page.", event);
             location.reload();
         };
+    },
+    process: function(message){
+	switch (message){
+	case 'keepalive':
+	    break;
+	default:
+	    let element = $('#' + message);
+	    url = element.data('url');
+	    $.ajax({
+		method: 'GET',
+		url: url,
+		dataType: 'html',
+		success: function(data){
+		    element.replaceWith(data);
+		}
+	    });
+	}
     },
     act: function(url, params, evalKeys){
 	var newParams = {};

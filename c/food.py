@@ -1,38 +1,31 @@
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
 from lib.framework import Action
-from lib.framework import ControllerPublic
+# from lib.framework import ControllerPublic
 from lib.framework import html_encode
 from lib.framework import let
-from lib.framework import page as _page
-from lib.framework import Stream
-from lib.messager  import MessageAnnouncer
+# from lib.framework import page as _page
+from lib.framework import stream
 from m.food        import Food
 
 import datetime
 
-class stream(Stream):
-    announcer = MessageAnnouncer(
-        id='food',
-        )
-    messageProcessor = 'food.process'
+# def page(content):
+#     return _page(
+#         headStuff=(
+#             t.title('Food'),
+#             t.link(rel='stylesheet', href='/static/flex.css'),
+#             t.link(rel='stylesheet', href='/static/food.css'),
+#             t.script(src='/static/food.js'),
+#             t.script(stream.getInitJs()),
+#             ),
+#         bodyStuff=content,
+#         )
 
-def page(content):
-    return _page(
-        headStuff=(
-            t.title('Food'),
-            t.link(rel='stylesheet', href='/static/flex.css'),
-            t.link(rel='stylesheet', href='/static/food.css'),
-            t.script(src='/static/food.js'),
-            t.script(stream.getInitJs()),
-            ),
-        bodyStuff=content,
-        )
-
-class index(ControllerPublic):
-    @returnAs(page)
-    def get(self):
-        return food.getNow()
+# class index(ControllerPublic):
+#     @returnAs(page)
+#     def get(self):
+#         return food.getNow()
 
 class food(Action):
     @returnAs(t.div, _class='flex-col-stretch flex-gap')
@@ -92,6 +85,7 @@ class meal(Action):
                 ),
             radios if row else '',
             id=f'food-{year}-{doy}-{meal}',
+            **{'data-url': f'/food/meal/{year}/{doy}/{meal}'},
             _class='meal flex-row-stretch flex-center flex-gap',
             )
     def validate(self, year, doy, meal, status):
@@ -107,9 +101,7 @@ class meal(Action):
             ''',
             (status, year, doy, meal),
             )
-        id = f'food-{year}-{doy}-{meal}'
-        url = f'/food/meal/{year}/{doy}/{meal}'
-        stream.announcer.announce(f'{id}:{url}')
+        stream.announcer.announce(f'food-{year}-{doy}-{meal}')
         return {}
 
 class editmeal(Action):
@@ -137,7 +129,7 @@ class editmeal(Action):
                 meal=meal,
                 desc=self.byId(ids.desc),
                 )),
-            t.button('Cancel', onclick='action.killPrompt(event.target);'),
+            t.button('Cancel', onclick='framework.killPrompt(event.target);'),
             t.button('Delete', onclick=editmeal.getActJs(
                 year=year,
                 doy=doy,
@@ -170,7 +162,5 @@ class editmeal(Action):
                 ''',
                 (year, doy, meal, desc, 0),
                 )
-        id = f'food-{year}-{doy}-{meal}'
-        url = f'/food/meal/{year}/{doy}/{meal}'
-        stream.announcer.announce(f'{id}:{url}')
-        return {'js': ['action.killTopScreen();']}
+        stream.announcer.announce(f'food-{year}-{doy}-{meal}')
+        return {'js': ['framework.killTopScreen();']}

@@ -1,30 +1,29 @@
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
-from lib.framework import ControllerPublic
-from lib.framework import page as _page
-from lib.framework import Stream
-from lib.messager  import MessageAnnouncer
+# from lib.framework import ControllerPublic
+# from lib.framework import page as _page
+from lib.framework import stream
 from m.tasks       import Task
 from lib.framework import Action
 from lib.framework import html_encode
 
-class stream(Stream):
-    announcer = MessageAnnouncer('tasks')
-    messageProcessor = 'tasks.process'
+# def page(content):
+#     return _page(
+#         headStuff=(
+#             t.title('Tasks'),
+#             t.script(src='/static/tasks.js'),
+#             t.script(stream.getInitJs()),
+#             ),
+#         bodyStuff=content,
+#         )
 
-def page(content):
-    return _page(
-        headStuff=(
-            t.title('Tasks'),
-            t.script(src='/static/tasks.js'),
-            t.script(stream.getInitJs()),
-            ),
-        bodyStuff=content,
-        )
+# class index(ControllerPublic):
+#     @returnAs(page)
+#     def get(self, *args, **kwargs):
+#         return tasks.getNow()
 
-class index(ControllerPublic):
-    @returnAs(page)
-    def get(self, *args, **kwargs):
+class tasks(Action):
+    def get(self):
         return t.div(
             t.button(
                 'New Task',
@@ -34,7 +33,12 @@ class index(ControllerPublic):
             )
 
 class tasklist(Action):
-    @returnAs(t.ul, _class='flex-col-stretch', id='tasklist')
+    @returnAs(
+        t.ul,
+        _class='flex-col-stretch',
+        id='tasklist',
+        **{'data-url': '/tasks/tasklist'},
+        )
     def get(self, *args, **kwargs):
         for row in reversed(list(Task.getAll())):
             yield task.getNow(row.id)
@@ -42,7 +46,7 @@ class tasklist(Action):
         pass
     def act(self):
         Task.insert(task='New Task')
-        stream.announcer.announce('tasklist:/tasks/tasklist')
+        stream.announce('tasklist')
         return {}
 
 class task(Action):
@@ -66,6 +70,7 @@ class task(Action):
                     ),
                 ),
             id='task' + str(row.id),
+            **{'data-url': f'/tasks/task/{row.id}'},
             )
     def validate(self, id, value):
         pass
@@ -78,7 +83,7 @@ class task(Action):
                 ''',
                 (id,),
                 )
-            stream.announcer.announce('tasklist:/tasks/tasklist')
+            stream.announce('tasklist')
             return {}
         Task.execute(
             '''
@@ -88,5 +93,5 @@ class task(Action):
             ''',
             (value, id,),
             )
-        stream.announcer.announce(f'task{id}:/tasks/task/{id}')
+        stream.announce(f'task{id}')
         return {}

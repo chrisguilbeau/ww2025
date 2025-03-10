@@ -1,10 +1,11 @@
+from c             import food
+from c             import tasks
+from c             import weather
 from lib.framework import ControllerPublic
 from lib.framework import page
 from lib.framework import returnAs
+from lib.framework import stream
 from lib.framework import t
-from c import weather
-from c import tasks
-from c import food
 
 class index(ControllerPublic):
     def get(self, *args, **kwargs):
@@ -16,16 +17,17 @@ class index(ControllerPublic):
                 t.script(src='/static/tasks.js'),
                 t.link(rel='stylesheet', href='/static/flex.css'),
                 t.link(rel='stylesheet', href='/static/food.css'),
-                t.script(src='/static/food.js'),
+                t.script(src='/static/weather.js'),
+                t.script(stream.getInitJs()),
                 ),
             bodyStuff=self.content(),
             )
     @returnAs(t.div, _class='flex-col-stretch flex-expand')
     def content(self):
         return t.div(
-            t.div(weather.index().getNow(),),
-            t.div(tasks.index().getNow(),),
-            t.div(food.index().getNow(), _class='flex-grow',),
+            t.div(weather.weather().getNow(),),
+            t.div(tasks.tasks().getNow(),),
+            t.div(food.food().getNow(), _class='flex-grow',),
             id='ww-main',
             _class='flex-expand flex-row-stretch flex-gap',
             )

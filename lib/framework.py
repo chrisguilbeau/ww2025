@@ -5,6 +5,7 @@ from html           import escape as html_encode
 from itertools      import count
 from json           import dumps as json_encode
 from lib.controller import Controller
+from lib.messager   import MessageAnnouncer
 
 class ControllerPublic(Controller):
     def doAuth(self):
@@ -48,7 +49,7 @@ class Action(ControllerPublic):
         jsParams = json_encode(kwargs)
         jsUrl = json_encode(cls.url)
         return html_encode(f'''
-            action.prompt({jsUrl}, {jsParams});
+            framework.prompt({jsUrl}, {jsParams});
             ''')
     @classmethod
     def byEval(cls, js):
@@ -65,7 +66,7 @@ class Action(ControllerPublic):
         jsUrl = json_encode(cls.url)
         jsJsKeys = json_encode([k for k, v in kwargs.items() if isinstance(v, Js)])
         return f'''
-            action.act({jsUrl}, {jsKwargs}, {jsJsKeys})
+            framework.act({jsUrl}, {jsKwargs}, {jsJsKeys})
             '''
     @classmethod
     def getActJs(cls, **kwargs):
@@ -97,7 +98,14 @@ class Stream(Action):
         return self.announcer.getStream()
     @classmethod
     def getInitJs(cls):
-        return f'action.messageInit({json_encode(cls.url)}, {cls.messageProcessor});'
+        return f'framework.messageInit({json_encode(cls.url)}, {cls.messageProcessor});'
+    @classmethod
+    def announce(cls, message):
+        cls.announcer.announce(message)
+
+    @classmethod
+    def addIntervalMessage(cls, message, interval):
+        stream.announcer.timeDict[message] = interval
 
 def page(headStuff=(), bodyStuff=(), title=None):
     title = t.title(title) if title else ''
@@ -124,3 +132,7 @@ def page(headStuff=(), bodyStuff=(), title=None):
             ),
         t.body(bodyStuff),
         )
+
+class stream(Stream):
+    announcer = MessageAnnouncer(id='quick-flask')
+    messageProcessor = 'framework.process'

@@ -14,7 +14,7 @@ def tail_f_generator(file_path):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         text=True
-    )
+        )
     try:
         while True:
             # Read a new line from the tail process
@@ -28,7 +28,7 @@ def tail_f_generator(file_path):
         process.terminate()
 
 class MessageAnnouncer:
-    def __init__(self, id, timeDict=None, keepAliveInterval=10):
+    def __init__(self, id, timeDict=None, keepAliveInterval=None):
         self.id = id
         self.file_path = f'{id}-messages.txt'
         self.timeDict = timeDict = timeDict or {}
@@ -42,9 +42,9 @@ class MessageAnnouncer:
 
     def _time_loop(self):
         startTime = time.time()
-        print('starting time loop for', self.id)
+        print('TIMELOOP: starting time loop for', self.id)
         while True:
-            print('processing timeDict for', self.id)
+            print('processing timeDict for', self.id, repr(self))
             now = time.time()
             elapsed = round(now - startTime)
             for message, interval in self.timeDict.items():
