@@ -1,31 +1,22 @@
 from lib.myflask import Response
-import subprocess
 import threading
 import time
 
 def tail_f_generator(file_path):
     """
-    This generator spawns a subprocess that tails the given file.
-    Each new line from tail is yielded as an SSE formatted message.
+    Tails the given file natively (without an external subprocess) and yields
+    new lines as SSE events, including a keep-alive comment if no new line
+    appears.
     """
-    # Start tailing the file from its current end
-    process = subprocess.Popen(
-        ['/usr/bin/tail', '-n', '0', '-f', file_path],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        text=True
-        )
-    try:
+    with open(file_path, 'r') as f:
+        # Seek to the end of the file
+        f.seek(0, 2)
         while True:
-            # Read a new line from the tail process
-            line = process.stdout.readline().strip()
+            line = f.readline()
             if line:
-                # Format the message as an SSE event
                 yield f"data: {line.strip()}\n\n"
             else:
                 time.sleep(0.1)
-    finally:
-        process.terminate()
 
 class MessageAnnouncer:
     def __init__(self, id, timeDict=None, keepAliveInterval=None):
