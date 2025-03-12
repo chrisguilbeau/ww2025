@@ -1142,20 +1142,11 @@ class weather(ControllerPublic):
             today = ' (Today) ' if index == 0 else ''
             maxTemp = day['maxtempF']
             minTemp = day['mintempF']
-            description = day['hourly'][0]['weatherDesc'][0]['value']
+            zero = day['hourly'][0]
+            description = zero['weatherDesc'][0]['value']
             sunrise = day['astronomy'][0]['sunrise']
             sunset = day['astronomy'][0]['sunset']
-            humidity = day['hourly'][0]['humidity']
-            windSpeed = day['hourly'][0]['windspeedMiles']
-            windGust = day['hourly'][0]['WindGustMiles']
-            if index == 0:
-                cur = conditions['current_condition'][0]
-                humidity = cur['humidity']
-                windSpeed = cur['windspeedMiles']
-                windGust = cur.get('WindGustMiles', windSpeed)
-            emojWater = '&#128167;'
             emojSunr = '&#x1F305;'
-            emojWind = '&#x1F4A8;'
             sunr = datetime.strptime(sunrise, '%I:%M %p')
             suns = datetime.strptime(sunset, '%I:%M %p')
             daylen = (suns - sunr).seconds // 60
@@ -1167,21 +1158,13 @@ class weather(ControllerPublic):
                     ' - ',
                     f'{description} (High: {maxTemp}&deg;F, Low: {minTemp}&deg;F)',
                     ),
-                t.i(
+                t.div(
                     emojSunr,
                     f' {sunr.strftime("%-I:%M %p")}',
                     ' - ',
                     f'{suns.strftime("%-I:%M %p")}',
                     f' ({dayH}h {dayM}m)',
-                    ' ',
-                    emojWind,
-                    f' {windSpeed}',
-                    f' - {windGust}' if windGust > windSpeed else '',
-                    ' mph ',
-                    emojWater,
-                    f' {humidity}%',
                     ),
-                _class='flex-col',
                 )
             @letAs(t.div)
             @letAs(t.table, _class='weather')
@@ -1197,9 +1180,21 @@ class weather(ControllerPublic):
                     description = hour['weatherDesc'][0]['value']
                     def getText(description, temp):
                         return f'{description} ({temp}&deg;F)'
+                    humidity = hour['humidity']
+                    windSpeed = hour['windspeedMiles']
+                    windGust = hour['WindGustMiles']
+                    emojWater = '&#128167;'
+                    emojWind = '&#x1F4A8;'
                     yield t.tr(
                         t.td(timeText, style='text-align: right'),
                         t.td(description),
-                        t.td(temp, '&deg;F', style='text-align: right'),
+                        t.td(temp, '&deg;F'),
+                        t.td(
+                            emojWind,
+                            f' {windSpeed}',
+                            f' - {windGust}' if windGust > windSpeed else '',
+                            ' mph ',
+                            ),
+                        t.td(emojWater, f' {humidity}%'),
                         )
             yield hourly
