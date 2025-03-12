@@ -1,5 +1,6 @@
 from cgpy.lets      import let # noqa
 from cgpy.lets      import returnAs # noqa
+from cgpy.lets      import letAs # noqa
 from cgpy.tags      import t
 from html           import escape as html_encode
 from itertools      import count

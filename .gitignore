@@ -4,3 +4,4 @@ etags
 tags
 **/__pycache__/
 /*-messages.txt
+*.json
