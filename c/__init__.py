@@ -20,14 +20,17 @@ class index(ControllerPublic):
                 t.script(src='/static/weather.js'),
                 t.script(stream.getInitJs()),
                 ),
-            bodyStuff=self.content(),
+            bodyStuff=ww.getNow(),
             )
-    @returnAs(t.div, _class='flex-col-stretch flex-expand')
-    def content(self):
+
+class ww(ControllerPublic):
+    @returnAs(t.div, _class='flex-col-stretch flex-expand ww')
+    def get(self):
         return t.div(
             t.div(weather.weather().getNow(),),
             t.div(tasks.tasks().getNow(),),
             t.div(food.food().getNow(), _class='flex-grow',),
             id='ww-main',
             _class='flex-expand flex-row-stretch flex-gap',
+            style='flex-wrap: wrap;',
             )

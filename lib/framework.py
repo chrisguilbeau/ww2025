@@ -99,7 +99,14 @@ class Stream(Action):
         return self.announcer.getStream()
     @classmethod
     def getInitJs(cls):
-        return f'framework.messageInit({json_encode(cls.url)}, {cls.messageProcessor});'
+        return f'''
+            function errorAction() {{framework.process("ww");}}
+            framework.messageInit(
+                {json_encode(cls.url)},
+                {cls.messageProcessor},
+                errorAction
+                );
+            '''
     @classmethod
     def announce(cls, message):
         cls.announcer.announce(message)

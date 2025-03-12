@@ -15,7 +15,7 @@ var framework = {
     killTopScreen: function(){
 	$('.action-screen').last().remove();
     },
-    messageInit: function(url, processor) {
+    messageInit: function(url, processor, errorAction){
         const es = new EventSource(url);
         es.onmessage = event => {
 	    if (event.data != 'keepalive'){
@@ -25,7 +25,7 @@ var framework = {
 	};
         es.onerror = event => {
             console.error("SSE error detected, reloading page.", event);
-            location.reload();
+            errorAction();
         };
     },
     process: function(message){
