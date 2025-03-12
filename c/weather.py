@@ -1148,6 +1148,11 @@ class weather(ControllerPublic):
             humidity = day['hourly'][0]['humidity']
             windSpeed = day['hourly'][0]['windspeedMiles']
             windGust = day['hourly'][0]['WindGustMiles']
+            if index == 0:
+                cur = conditions['current_condition'][0]
+                humidity = cur['humidity']
+                windSpeed = cur['windspeedMiles']
+                windGust = cur.get('WindGustMiles', windSpeed)
             emojWater = '&#128167;'
             emojSunr = '&#x1F305;'
             emojWind = '&#x1F4A8;'
