@@ -1,26 +1,9 @@
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
-# from lib.framework import ControllerPublic
-# from lib.framework import page as _page
 from lib.framework import stream
 from m.tasks       import Task
 from lib.framework import Action
 from lib.framework import html_encode
-
-# def page(content):
-#     return _page(
-#         headStuff=(
-#             t.title('Tasks'),
-#             t.script(src='/static/tasks.js'),
-#             t.script(stream.getInitJs()),
-#             ),
-#         bodyStuff=content,
-#         )
-
-# class index(ControllerPublic):
-#     @returnAs(page)
-#     def get(self, *args, **kwargs):
-#         return tasks.getNow()
 
 class tasks(Action):
     def get(self):
@@ -30,11 +13,13 @@ class tasks(Action):
                 onclick=tasklist.getActJs(),
                 ),
             tasklist.getNow(),
+            _class='flex-col flex-gap',
+            style='padding: 1rem;',
             )
 
 class tasklist(Action):
     @returnAs(
-        t.ul,
+        t.div,
         _class='flex-col-stretch',
         id='tasklist',
         **{'data-url': '/tasks/tasklist'},
@@ -71,6 +56,7 @@ class task(Action):
                 ),
             id='task' + str(row.id),
             **{'data-url': f'/tasks/task/{row.id}'},
+            _class='flex-row flex-gap',
             )
     def validate(self, id, value):
         pass
