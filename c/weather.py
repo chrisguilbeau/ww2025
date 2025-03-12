@@ -1145,6 +1145,9 @@ class weather(ControllerPublic):
         wind = currentConditions['windspeedMiles']
         gust = currentConditions.get('WindGustMiles')
         windText = f'Wind {wind} mph'
+        localObsTime = currentConditions['localObsDateTime']
+        localObsDt = datetime.strptime(localObsTime, '%Y-%m-%d %I:%M %p')
+        obsTime = localObsDt.strftime('%-I:%M %p')
         if gust:
             windText += f' (gusts {gust} mph)'
         def getText(description, temp, feelsLike):
@@ -1160,7 +1163,7 @@ class weather(ControllerPublic):
             description = day['hourly'][0]['weatherDesc'][0]['value']
             def getText(description, maxTemp, minTemp):
                 return f'{description} (High: {maxTemp}&deg;F, Low: {minTemp}&deg;F)'
-            yield t.i(dayName, ': ', getText(description, maxTemp, minTemp))
+            yield t.i(dayName, ' - ', getText(description, maxTemp, minTemp))
             @letAs(t.table, _class='weather')
             def hourly():
                 for hour in day['hourly']:
@@ -1180,4 +1183,5 @@ class weather(ControllerPublic):
                         t.td(temp, '&deg;F', style='text-align: right'),
                         )
             yield hourly
-        yield t.div(f"Last updated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+        yield t.div(f'Observed at {obsTime}')
+        yield t.div(f"Last refreshed {datetime.now().strftime('%-I:%M %p')}")
