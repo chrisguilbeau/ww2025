@@ -1094,6 +1094,8 @@ def getConditions(zip_code=ZIP):
     # Check if cache exists and is still valid
     if os.path.exists(cache_file):
         last_modified = os.path.getmtime(cache_file)
+        print('!!!' * 10)
+        print(time.time() - last_modified, CACHE_DURATION)
         if time.time() - last_modified < CACHE_DURATION:
             with open(cache_file, "r") as f:
                 data = json.load(f)
@@ -1133,37 +1135,50 @@ class weather(ControllerPublic):
             };
             ''')
         from datetime import datetime
-        # yield t.i("Weather")
-        # # put the pretty printed conditions in a pre
-        # yield t.pre(ZIP)
         conditions = getConditions()
-        currentConditions = conditions['current_condition'][0]
-        temp = currentConditions['temp_F']
-        feelsLike = currentConditions['FeelsLikeF']
-        # humidity = currentConditions['humidity']
-        description = currentConditions['weatherDesc'][0]['value']
-        wind = currentConditions['windspeedMiles']
-        gust = currentConditions.get('WindGustMiles')
-        windText = f'Wind {wind} mph'
-        localObsTime = currentConditions['localObsDateTime']
-        localObsDt = datetime.strptime(localObsTime, '%Y-%m-%d %I:%M %p')
-        obsTime = localObsDt.strftime('%-I:%M %p')
-        if gust:
-            windText += f' (gusts {gust} mph)'
-        def getText(description, temp, feelsLike):
-            return f'{description} ({temp}&deg;F, feels like {feelsLike}&deg;F)'
-        yield t.b(getText(description, temp, feelsLike))
-        yield t.div('&#8776; ', windText)
         for index, day in enumerate(conditions['weather']):
             date = day['date']
-            dayName = 'Today' if index == 0 else datetime.strptime(
-                date, '%Y-%m-%d').strftime('%A')
+            dayName = datetime.strptime(date, '%Y-%m-%d').strftime('%A')
+            today = ' (Today) ' if index == 0 else ''
             maxTemp = day['maxtempF']
             minTemp = day['mintempF']
             description = day['hourly'][0]['weatherDesc'][0]['value']
-            def getText(description, maxTemp, minTemp):
-                return f'{description} (High: {maxTemp}&deg;F, Low: {minTemp}&deg;F)'
-            yield t.i(dayName, ' - ', getText(description, maxTemp, minTemp))
+            sunrise = day['astronomy'][0]['sunrise']
+            sunset = day['astronomy'][0]['sunset']
+            humidity = day['hourly'][0]['humidity']
+            windSpeed = day['hourly'][0]['windspeedMiles']
+            windGust = day['hourly'][0]['WindGustMiles']
+            emojWater = '&#128167;'
+            emojSunr = '&#x1F305;'
+            emojWind = '&#x1F4A8;'
+            sunr = datetime.strptime(sunrise, '%I:%M %p')
+            suns = datetime.strptime(sunset, '%I:%M %p')
+            daylen = (suns - sunr).seconds // 60
+            dayH = daylen // 60
+            dayM = daylen % 60
+            yield t.div(
+                t.b(dayName,
+                    today,
+                    ' - ',
+                    f'{description} (High: {maxTemp}&deg;F, Low: {minTemp}&deg;F)',
+                    ),
+                t.i(
+                    emojSunr,
+                    f' {sunr.strftime("%-I:%M %p")}',
+                    ' - ',
+                    f'{suns.strftime("%-I:%M %p")}',
+                    f' ({dayH}h {dayM}m)',
+                    ' ',
+                    emojWind,
+                    f' {windSpeed}',
+                    f' - {windGust}' if windGust > windSpeed else '',
+                    ' mph ',
+                    emojWater,
+                    f' {humidity}%',
+                    ),
+                _class='flex-col',
+                )
+            @letAs(t.div)
             @letAs(t.table, _class='weather')
             def hourly():
                 for hour in day['hourly']:
@@ -1183,5 +1198,3 @@ class weather(ControllerPublic):
                         t.td(temp, '&deg;F', style='text-align: right'),
                         )
             yield hourly
-        yield t.div(f'Observed at {obsTime}')
-        yield t.div(f"Last refreshed {datetime.now().strftime('%-I:%M %p')}")
