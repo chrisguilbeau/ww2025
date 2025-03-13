@@ -1,4 +1,5 @@
 var framework = {
+    es: null,
     prompt: function(url, params){
 	let html = $('html');
 	let screen = $('<div/>', {class: 'action-screen'});
@@ -15,21 +16,36 @@ var framework = {
     killTopScreen: function(){
 	$('.action-screen').last().remove();
     },
-    messageInit: function(url, processor, errorAction){
-        const es = new EventSource(url);
-        es.onmessage = event => {
-	    if (event.data != 'keepalive'){
-		console.log(event.data);
+    messageInit: function(url, processor, errorAction) {
+	// Flag to indicate an error occurred.
+	let hadError = false;
+	framework.es = new EventSource(url);
+	framework.es.onmessage = event => {
+	    if (event.data !== 'keepalive') {
 		processor(event.data);
 	    }
 	};
-        es.onerror = event => {
-            console.error("SSE error detected, reloading page.", event);
-            errorAction();
-        };
+	framework.es.onerror = event => {
+	    console.error("SSE error detected:", event);
+	    hadError = true;
+	    // Don't close or reinitialize; let EventSource handle reconnection.
+	};
+	framework.es.onopen = event => {
+	    // If an error was encountered earlier, then the connection was re-established.
+	    if (hadError) {
+		console.log("SSE connection re-established.");
+		errorAction();
+		hadError = false; // Reset flag after handling the error.
+	    } else {
+		console.log("SSE connection established.");
+	    }
+	};
     },
     process: function(message){
+	console.log(message);
 	switch (message){
+	case 'connected':
+	    break;
 	case 'keepalive':
 	    break;
 	default:

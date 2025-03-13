@@ -24,7 +24,11 @@ class index(ControllerPublic):
             )
 
 class ww(ControllerPublic):
-    @returnAs(t.div, _class='flex-col-stretch flex-expand ww')
+    @returnAs(t.div,
+              _class='flex-col-stretch flex-expand',
+              id='ww',
+              **{'data-url': '/ww'},
+              )
     def get(self):
         return t.div(
             t.div(weather.weather().getNow(),),

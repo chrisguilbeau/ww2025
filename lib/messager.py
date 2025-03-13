@@ -8,6 +8,7 @@ def tail_f_generator(file_path):
     new lines as SSE events, including a keep-alive comment if no new line
     appears.
     """
+    yield 'connected'
     with open(file_path, 'r') as f:
         # Seek to the end of the file
         f.seek(0, 2)
