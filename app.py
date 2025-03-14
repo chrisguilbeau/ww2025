@@ -72,9 +72,12 @@ def dispatcher(path):
         return str((Controller.routes, path, handler.args, handler.kwargs))
         return abort(404)
 
+# At the module level:
+if not globals().get('_controllers_loaded'):
+    loadControllersAndViews()
+    _controllers_loaded = True
 
 if __name__ == '__main__':
-    loadControllersAndViews()
     app.run(
         debug=True,
         port=3000,
