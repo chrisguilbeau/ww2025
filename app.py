@@ -22,7 +22,6 @@ def yieldKwargs():
         for key, value in request.json.items():
             yield key, value
 
-@let
 def loadControllersAndViews():
     import os
     for root in ['c', 'v']:
@@ -75,6 +74,7 @@ def dispatcher(path):
 
 
 if __name__ == '__main__':
+    loadControllersAndViews()
     app.run(
         debug=True,
         port=3000,

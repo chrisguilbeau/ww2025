@@ -1,14 +1,13 @@
-from c.food        import food
-from c.tasks       import tasks
+from c             import agenda
+from c             import food
+from c             import tasks
 from c.weather     import weather
-from c.agenda      import agenda
 from lib.framework import ControllerPublic
+from lib.framework import json_encode
 from lib.framework import page
 from lib.framework import returnAs
 from lib.framework import t
 import datetime
-from m.__init__ import stream
-from lib.framework import json_encode
 
 class index(ControllerPublic):
     def get(self, *args, **kwargs):
@@ -17,12 +16,6 @@ class index(ControllerPublic):
             headStuff=(
                 t.title('Wonder Wall'),
                 t.link(rel='stylesheet', href='/static/ww.css'),
-                # t.script(src='/static/tasks.js'),
-                t.link(rel='stylesheet', href='/static/tasks.css'),
-                t.link(rel='stylesheet', href='/static/food.css'),
-                # t.script(src='/static/food.js'),
-                # t.script(src='/static/weather.js'),
-                t.script(stream.getInitJs()),
                 ),
             bodyStuff=ww.getNow(),
             )
@@ -39,15 +32,24 @@ class timeanddate(ControllerPublic):
         yield t.span(datetime.datetime.now().strftime('%A %B %d'))
         yield t.span(datetime.datetime.now().strftime('%-I:%M %p'))
 
-class weather(ControllerPublic):
-    @returnAs(t.div, id='weather', **{'data-url': '/weather'})
-    def get(self):
-        return '''
-<a class="weatherwidget-io" href="https://forecast7.com/en/43d97n73d03/ripton/?unit=us" data-theme="pure" >Ripton, VT, USA</a>
-<script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-</script>
-        '''
+def container(controller, _class=''):
+    url = controller.index.url
+    return t.div(
+        t.a(
+            '&#128241;',
+            href=url,
+            style='''
+                position: absolute;
+                top: 0;
+                right: 0;
+                font-size: 2em;
+                text-decoration: none;
+                opacity: 0.5;
+                '''),
+        t.iframe(src=url, _class='flex-grow'),
+        _class='ww-cell flex-col-stretch ' + _class,
+        style='position: relative;',
+        )
 
 class ww(ControllerPublic):
     @returnAs(t.div,
@@ -63,10 +65,10 @@ class ww(ControllerPublic):
                 _class='flex-row',
                 ),
             t.div(
-                t.div(agenda.getNow(), _class='ww-cell',),
-                t.div(tasks.getNow(), _class='ww-cell',),
-                t.div(food.getNow(), _class='flex-grow ww-cell',),
-                _class='flex-row',
+                container(agenda),
+                container(tasks),
+                container(food, _class='flex-grow'),
+                _class='flex-row flex-grow',
                 id='ww-main',
                 ),
             _class='flex-col-stretch flex-expand',

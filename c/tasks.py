@@ -4,6 +4,20 @@ from lib.framework import Action
 from lib.framework import html_encode
 from m             import stream
 from m.tasks       import Task
+from lib.framework import page
+from lib.framework import ControllerPublic
+
+class index(ControllerPublic):
+    def get(self):
+        return page(
+            headStuff=(
+                t.title('Wonder Wall - Ta Da List'),
+                t.script(src='/static/tasks.js'),
+                t.link(rel='stylesheet', href='/static/tasks.css'),
+                t.script(stream.getInitJs()),
+                ),
+            bodyStuff=tasks.getNow(),
+            )
 
 class tasks(Action):
     def get(self):

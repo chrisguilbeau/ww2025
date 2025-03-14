@@ -6,6 +6,7 @@ from googleapiclient.discovery      import build
 from itertools                      import groupby
 from lib.framework                  import ControllerPublic
 from lib.framework                  import letAs
+from lib.framework                  import page
 from lib.framework                  import returnAs
 from lib.framework                  import t
 from operator                       import itemgetter
@@ -75,8 +76,19 @@ def getGoogleCalendarEvents():
 
     return all_events
 
+class index(ControllerPublic):
+    def get(self):
+        return page(
+            title='Wonder Wall - Agenda',
+            headStuff=(
+                t.title('Wonder Wall - Agenda'),
+                t.link(rel='stylesheet', href='/static/agenda.css'),
+                ),
+            bodyStuff=agenda.getNow(),
+            )
+
 class agenda(ControllerPublic):
-    @returnAs(t.div, id='agenda', **{'data-url': '/agenda'})
+    @returnAs(t.div, id='agenda', **{'data-url': '/agenda/agenda'})
     def get(self):
         events = getGoogleCalendarEvents()
         @letAs(tuple)

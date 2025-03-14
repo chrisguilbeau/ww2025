@@ -5,8 +5,23 @@ from lib.framework import html_encode
 from lib.framework import let
 from m             import stream
 from m.food        import Food
+from lib.framework import page
+from lib.framework import ControllerPublic
 
 import datetime
+
+class index(ControllerPublic):
+    def get(self, *args, **kwargs):
+        return page(
+            title='Wonder Wall - Food',
+            headStuff=(
+                t.title('Wonder Wall - Food'),
+                t.script(src='/static/food.js'),
+                t.link(rel='stylesheet', href='/static/food.css'),
+                t.script(stream.getInitJs()),
+                ),
+            bodyStuff=food.getNow(),
+            )
 
 class food(Action):
     @returnAs(t.div, _class='flex-col-stretch flex-gap', id='food', **{'data-url': '/food/food'})

@@ -6,12 +6,12 @@ body, html{
     width: 100%;
 }
 
-#ww-main{
-    padding: 1rem;
+iframe{
+    border: none;
 }
 
-#ww-main > div:nth-child(1){
-    background-color: #e9e9e9;
+#ww-main{
+    padding: 1rem;
 }
 
 .ww-cell{
