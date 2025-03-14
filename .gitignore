@@ -5,3 +5,4 @@ tags
 **/__pycache__/
 /*-messages.txt
 *.json
+credentials.json

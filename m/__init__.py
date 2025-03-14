@@ -1,6 +1,14 @@
+from cgpy.lets     import letAs
+from collections   import namedtuple
+from lib.framework import Stream
+from lib.messager  import MessageAnnouncer
 import sqlite3
-from collections import namedtuple
-from cgpy.lets import letAs
+
+class stream(Stream):
+    announcer = MessageAnnouncer(
+        id='wonderwall',
+        )
+    messageProcessor = 'framework.process'
 
 def singleton(cls):
     return cls()

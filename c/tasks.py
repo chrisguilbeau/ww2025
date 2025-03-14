@@ -1,20 +1,22 @@
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
-from lib.framework import stream
-from m.tasks       import Task
 from lib.framework import Action
 from lib.framework import html_encode
+from m             import stream
+from m.tasks       import Task
 
 class tasks(Action):
     def get(self):
         return t.div(
+            t.h1('Tada List'),
             t.button(
                 'New Task',
                 onclick=tasklist.getActJs(),
                 ),
             tasklist.getNow(),
-            _class='flex-col flex-gap',
-            style='padding: 1rem;',
+            _class='flex-col-stretch flex-gap',
+            id='tasks',
+            url='/tasks',
             )
 
 class tasklist(Action):

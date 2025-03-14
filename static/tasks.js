@@ -8,5 +8,5 @@ var tasks = {
 	var url = parts[1];
 	$('#' + id).load(url);
 	$.get(url, function(data) {$("#" + id).replaceWith(data);});
-    }
+    },
 };

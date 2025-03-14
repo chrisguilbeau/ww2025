@@ -1,12 +1,11 @@
 from cgpy.lets      import let # noqa
-from cgpy.lets      import returnAs # noqa
 from cgpy.lets      import letAs # noqa
+from cgpy.lets      import returnAs # noqa
 from cgpy.tags      import t
 from html           import escape as html_encode
 from itertools      import count
 from json           import dumps as json_encode
 from lib.controller import Controller
-from lib.messager   import MessageAnnouncer
 
 class ControllerPublic(Controller):
     def doAuth(self):
@@ -92,6 +91,7 @@ class Stream(Action):
     announcer = None
     messageProcessor = None
     def __init_subclass__(cls, **kwargs):
+        print('NEW SUBCLASS!!!')
         super().__init_subclass__(**kwargs)
         assert cls.announcer, 'Stream subclass must define announcer'
         assert cls.messageProcessor, 'Stream subclass must define messageProcessor'
@@ -110,10 +110,6 @@ class Stream(Action):
     @classmethod
     def announce(cls, message):
         cls.announcer.announce(message)
-
-    @classmethod
-    def addIntervalMessage(cls, message, interval):
-        stream.announcer.timeDict[message] = interval
 
 def page(headStuff=(), bodyStuff=(), title=None):
     title = t.title(title) if title else ''
@@ -140,7 +136,3 @@ def page(headStuff=(), bodyStuff=(), title=None):
             ),
         t.body(bodyStuff),
         )
-
-class stream(Stream):
-    announcer = MessageAnnouncer(id='quick-flask')
-    messageProcessor = 'framework.process'

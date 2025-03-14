@@ -1,46 +1,33 @@
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
 from lib.framework import Action
-# from lib.framework import ControllerPublic
 from lib.framework import html_encode
 from lib.framework import let
-# from lib.framework import page as _page
-from lib.framework import stream
+from m             import stream
 from m.food        import Food
 
 import datetime
 
-# def page(content):
-#     return _page(
-#         headStuff=(
-#             t.title('Food'),
-#             t.link(rel='stylesheet', href='/static/flex.css'),
-#             t.link(rel='stylesheet', href='/static/food.css'),
-#             t.script(src='/static/food.js'),
-#             t.script(stream.getInitJs()),
-#             ),
-#         bodyStuff=content,
-#         )
-
-# class index(ControllerPublic):
-#     @returnAs(page)
-#     def get(self):
-#         return food.getNow()
-
 class food(Action):
-    @returnAs(t.div, _class='flex-col-stretch flex-gap')
+    @returnAs(t.div, _class='flex-col-stretch flex-gap', id='food', **{'data-url': '/food/food'})
     def get(self, *args, **kwargs):
         now = datetime.datetime.now()
         year = now.year
         for i in range(7):
             dt = now + datetime.timedelta(days=i)
             doy = dt.timetuple().tm_yday
-            dayLetter = dt.strftime('%A')[0].upper()
+            dayName = dt.strftime('%A')
             isToday = i == 0
+            isWeekend = dt.weekday() in [5, 6]
             _class = 'today ' if isToday else ''
-            _class += 'day flex-row flex-center'
+            _class += 'day flex-row'
+            if isWeekend:
+                _class += ' weekend'
             yield t.div(
-                t.h1(dayLetter),
+                t.h1(
+                    dayName[:2],
+                    _class='flex-col flex-center',
+                    ),
                 t.div(
                     meal.getNow(year, doy, 1),
                     meal.getNow(year, doy, 2),

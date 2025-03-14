@@ -1,7 +1,6 @@
 from lib.framework import ControllerPublic
 from lib.framework import letAs
 from lib.framework import returnAs
-from lib.framework import stream
 from lib.framework import t
 import json
 import os
@@ -1122,8 +1121,6 @@ def getCurrentTemp():
     return conditions['temp_F']
 
 class weather(ControllerPublic):
-    if 'weather' not in stream.announcer.timeDict:
-        stream.announcer.timeDict['weather'] = 10
     @returnAs(t.div, id='weather', **{'data-url': '/weather/weather'},
               _class='flex-col-stretch flex-gap')
     def get(self):
