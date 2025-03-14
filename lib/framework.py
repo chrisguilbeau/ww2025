@@ -5,6 +5,7 @@ from cgpy.tags      import t
 from html           import escape as html_encode
 from itertools      import count
 from json           import dumps as json_encode
+from json           import loads as json_decode
 from lib.controller import Controller
 
 class ControllerPublic(Controller):

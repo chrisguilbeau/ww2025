@@ -37,7 +37,8 @@ def getGoogleCalendarEvents():
             token.write(creds.to_json())
 
     service = build('calendar', 'v3', credentials=creds)
-    now = datetime.datetime.utcnow().isoformat() + 'Z'  # 'Z' indicates UTC time
+    # make it midnight so we get the whole day
+    now = datetime.datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0).isoformat() + 'Z'  # 'Z' indicates UTC time
 
     # Get the list of all calendars for the user.
     calendars_result = service.calendarList().list().execute()
