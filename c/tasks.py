@@ -1,11 +1,11 @@
+from c.stream      import stream
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
 from lib.framework import Action
-from lib.framework import html_encode
-from m             import stream
-from m.tasks       import Task
-from lib.framework import page
 from lib.framework import ControllerPublic
+from lib.framework import html_encode
+from lib.framework import page
+from m.tasks       import Task
 
 class index(ControllerPublic):
     def get(self):

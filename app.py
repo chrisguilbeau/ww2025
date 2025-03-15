@@ -5,7 +5,6 @@ from lib.myflask import request
 from lib.myflask import abort
 from lib.myflask import app
 from collections import namedtuple
-from cgpy.lets import let
 
 modules = {}
 Handler = namedtuple('Handler', 'controller view method args kwargs')
@@ -71,6 +70,7 @@ def dispatcher(path):
     else:
         return str((Controller.routes, path, handler.args, handler.kwargs))
         return abort(404)
+
 
 # At the module level:
 if not globals().get('_controllers_loaded'):

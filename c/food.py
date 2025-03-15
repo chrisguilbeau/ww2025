@@ -1,12 +1,12 @@
+from c.stream      import stream
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
 from lib.framework import Action
+from lib.framework import ControllerPublic
 from lib.framework import html_encode
 from lib.framework import let
-from m             import stream
-from m.food        import Food
 from lib.framework import page
-from lib.framework import ControllerPublic
+from m.food        import Food
 
 import datetime
 
