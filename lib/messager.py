@@ -1,22 +1,27 @@
 from lib.myflask import Response
-import threading
 import time
+import os
+import select
 
 def tail_f_generator(file_path):
     """
     Tails the given file natively (without an external subprocess) and yields
-    new lines as SSE events, including a keep-alive comment if no new line
-    appears.
+    new lines as SSE events. If no new line is available, it yields a keep-alive
+    comment to prevent client timeouts.
     """
     with open(file_path, 'r') as f:
-        # Seek to the end of the file
-        f.seek(0, 2)
+        # Move the file pointer to the end of the file.
+        f.seek(0, os.SEEK_END)
         while True:
-            line = f.readline()
-            if line:
-                yield f"data: {line.strip()}\n\n"
+            # Use select to wait for the file to become readable, with a timeout.
+            rlist, _, _ = select.select([f], [], [], 0.1)
+            if rlist:
+                line = f.readline()
+                if line:
+                    yield f"data: {line.strip()}\n\n"
             else:
-                time.sleep(0.1)
+                # If select times out without the file being readable, yield keep-alive.
+                yield ": keepalive\n\n"
 
 class MessageAnnouncer:
     def __init__(self, id, timeDict=None, keepAliveInterval=None):
@@ -26,24 +31,6 @@ class MessageAnnouncer:
         # Start a background thread to send keep-alive messages
         if keepAliveInterval:
             timeDict['keepalive'] = keepAliveInterval
-        if timeDict:
-            self._time_thread = threading.Thread(
-                target=self._time_loop, daemon=True)
-            self._time_thread.start()
-
-    def _time_loop(self):
-        startTime = time.time()
-        print('TIMELOOP: starting time loop for', self.id)
-        while True:
-            print('processing timeDict for', self.id, repr(self))
-            now = time.time()
-            elapsed = round(now - startTime)
-            for message, interval in self.timeDict.items():
-                print(elapsed, interval)
-                if elapsed % interval == 0:
-                    print(self.id, message)
-                    self.announce(message)
-            time.sleep(1)
 
     def announce(self, msg):
         """
