@@ -6,3 +6,5 @@ tags
 /*-messages.txt
 *.json
 credentials.json
+config.py
+*.pkl
