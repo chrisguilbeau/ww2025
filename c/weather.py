@@ -1416,6 +1416,7 @@ class weather(ControllerPublic):
             t.div(style='height: 3rem; border-right: 1px solid black;'),
             nextThreeDays(dct),
             _class='flex-row flex-center flex-gap',
+            style='flex-wrap: wrap;',
             )
         return '''
 <a class="weatherwidget-io" href="https://forecast7.com/en/43d97n73d03/ripton/?unit=us" data-theme="pure" >Ripton, VT, USA</a>

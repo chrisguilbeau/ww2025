@@ -25,3 +25,24 @@ iframe{
     color: maroon;
     padding: 0.5rem;
 }
+
+/*  css for when rendered on a mobile device */
+@media only screen and (max-width: 600px){
+    #ww-main{
+        padding: 0.5rem;
+        flex-direction: column;
+    }
+
+    iframe{
+        border-bottom: 2px solid #black;
+    }
+
+    #timeanddate{
+        height: fit-content;
+    }
+
+    #ww-top{
+        flex-direction: column;
+        display: none;
+    }
+}

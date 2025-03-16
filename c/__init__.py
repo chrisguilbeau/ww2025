@@ -61,9 +61,10 @@ class ww(ControllerPublic):
     def get(self):
         yield t.div(
             t.div(
-                t.div(timeanddate.getNow()),
-                t.div(weather.getNow(), _class='flex-grow',),
-                _class='flex-row',
+                timeanddate.getNow(),
+                weather.getNow(),
+                _class='flex-row-stretch',
+                id='ww-top',
                 ),
             t.div(
                 container(agenda),
@@ -73,6 +74,7 @@ class ww(ControllerPublic):
                 id='ww-main',
                 ),
             _class='flex-col-stretch flex-expand',
+            style='flex-wrap: wrap;',
             )
         for msg in ('weather', 'tasks', 'food'):
             jsMsg = json_encode(msg)
