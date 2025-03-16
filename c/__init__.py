@@ -7,7 +7,6 @@ from lib.framework import json_encode
 from lib.framework import page
 from lib.framework import returnAs
 from lib.framework import t
-import datetime
 
 class index(ControllerPublic):
     def get(self, *args, **kwargs):
@@ -15,6 +14,7 @@ class index(ControllerPublic):
             title='Wonder Wall',
             headStuff=(
                 t.title('Wonder Wall'),
+                t.script(src='/static/ww.js'),
                 t.link(rel='stylesheet', href='/static/ww.css'),
                 ),
             bodyStuff=ww.getNow(),
@@ -23,14 +23,15 @@ class index(ControllerPublic):
 class timeanddate(ControllerPublic):
     @returnAs(t.div, id='timeanddate', **{'data-url': '/timeanddate'},
               _class='flex-col-stretch flex-center',
-              style='font-size:3rem;',
               )
     def get(self):
         '''
         Thursday March 13 5:15 PM
         '''
-        yield t.span(datetime.datetime.now().strftime('%A %B %d'))
-        yield t.span(datetime.datetime.now().strftime('%-I:%M %p'))
+        yield '--'
+        yield t.script('ww.timeAndDateInit();')
+        # yield t.span(datetime.datetime.now().strftime('%A %B %d'))
+        # yield t.span(datetime.datetime.now().strftime('%-I:%M %p'))
 
 def container(controller, _class=''):
     url = controller.index.url
@@ -76,5 +77,4 @@ class ww(ControllerPublic):
         for msg in ('weather', 'tasks', 'food'):
             jsMsg = json_encode(msg)
             yield t.script(f'setInterval(framework.process, 1000 * 60 * 15, {jsMsg});')
-        yield t.script('setInterval(framework.process, 6000, "timeanddate");')
         yield t.script('setInterval(framework.process, 1000 * 60 * 60 * 5, "agenda");')

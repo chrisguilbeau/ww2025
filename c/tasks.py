@@ -69,6 +69,7 @@ class task(Action):
                     id=row.id,
                     value=self.byId(ids.task),
                     ),
+                _class='flex-grow',
                 ),
             id='task' + str(row.id),
             **{'data-url': f'/tasks/task/{row.id}'},

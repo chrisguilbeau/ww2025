@@ -1,36 +1,40 @@
-from lib.myflask import Response
 import time
+from lib.myflask import Response
 import os
-import select
 
-def tail_f_generator(file_path):
+def tail_f_generator(file_path, keepalive_interval=30, sleep_interval=0.5):
     """
-    Tails the given file natively (without an external subprocess) and yields
-    new lines as SSE events. If no new line is available, it yields a keep-alive
-    comment to prevent client timeouts.
+    Tails the given file and yields new lines as SSE events.
+    If no new line is available, it waits briefly, and only sends a
+    keepalive comment every `keepalive_interval` seconds.
     """
     with open(file_path, 'r') as f:
-        # Move the file pointer to the end of the file.
         f.seek(0, os.SEEK_END)
+        last_sent = time.time()
         while True:
-            # Use select to wait for the file to become readable, with a timeout.
-            rlist, _, _ = select.select([f], [], [], 0.1)
-            if rlist:
-                line = f.readline()
-                if line:
-                    yield f"data: {line.strip()}\n\n"
+            line = f.readline()
+            if line:
+                # Reset the timer when new data is sent.
+                last_sent = time.time()
+                yield f"data: {line.strip()}\n\n"
             else:
-                # If select times out without the file being readable, yield keep-alive.
-                yield ": keepalive\n\n"
+                # No new line; check if it's time to send a keepalive.
+                current_time = time.time()
+                if current_time - last_sent >= keepalive_interval:
+                    yield ": keepalive\n\n"
+                    last_sent = current_time
+                else:
+                    # Sleep briefly to avoid busy looping.
+                    time.sleep(sleep_interval)
 
 class MessageAnnouncer:
     def __init__(self, id, timeDict=None, keepAliveInterval=None):
         self.id = id
         self.file_path = f'{id}-messages.txt'
-        self.timeDict = timeDict = timeDict or {}
-        # Start a background thread to send keep-alive messages
+        self.timeDict = timeDict or {}
+        # If a keepalive interval is provided, store it.
         if keepAliveInterval:
-            timeDict['keepalive'] = keepAliveInterval
+            self.timeDict['keepalive'] = keepAliveInterval
 
     def announce(self, msg):
         """
@@ -44,5 +48,7 @@ class MessageAnnouncer:
         """
         Returns a Flask Response that uses the tail_f_generator to stream events.
         """
-        return Response(tail_f_generator(self.file_path),
+        # Use the keepalive interval from timeDict if provided.
+        interval = self.timeDict.get('keepalive', 30)
+        return Response(tail_f_generator(self.file_path, keepalive_interval=interval),
                         mimetype='text/event-stream')

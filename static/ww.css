@@ -20,7 +20,8 @@ iframe{
 
 #timeanddate{
     font-size: 2rem;
-    font-weight: bold;
+    font-weight: normal;
     background-color: #f6cc99;
     color: maroon;
+    padding: 0.5rem;
 }

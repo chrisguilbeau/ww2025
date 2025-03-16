@@ -19,7 +19,7 @@ input[type='radio']{
 }
 
 .meal button{
-    font-size: 1.5rem;
+    font-size: 12pt;
 }
 
 .meal button.status{
