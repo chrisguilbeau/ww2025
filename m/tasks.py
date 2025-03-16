@@ -9,3 +9,13 @@ class Task(Table):
         'task text',
         'done integer',
         )
+    def getAfter(self, time):
+        return self.select(
+            sql='''
+            select *
+            from task
+            where done > ? or done = 0
+            order by done desc;
+            ''',
+            params=(time,),
+            )
