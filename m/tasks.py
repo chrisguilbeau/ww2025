@@ -14,7 +14,7 @@ class Task(Table):
             sql='''
             select *
             from task
-            where done > ? or done = 0
+            where done > ? or done = 0 or done is null
             order by done desc;
             ''',
             params=(time,),

@@ -92,17 +92,7 @@ class task(Action):
     def validate(self, id, value, done):
         pass
     def act(self, id, value, done):
-        if done:
-            Task.execute(
-                '''
-                update task
-                set done = ?, task = ?
-                where id = ?;
-                ''',
-                (done, value, id),
-                )
-            stream.announce('tasklist')
-            return {}
+        done = 0 if not done else float(done)
         if not value:
             Task.execute(
                 '''
@@ -113,13 +103,25 @@ class task(Action):
                 )
             stream.announce('tasklist')
             return {}
-        Task.execute(
-            '''
-            update task
-            set task = ?
-            where id = ?;
-            ''',
-            (value, id,),
-            )
-        stream.announce(f'task{id}')
-        return {}
+        if done:
+            Task.execute(
+                '''
+                update task
+                set done = ?
+                where id = ?;
+                ''',
+                (done, id),
+                )
+            stream.announce('tasklist')
+            return {}
+        else:
+            Task.execute(
+                '''
+                update task
+                set task = ?, done = null
+                where id = ?;
+                ''',
+                (value, id,),
+                )
+            stream.announce(f'task{id}')
+            return {}
