@@ -3,7 +3,6 @@ from c             import food
 from c             import tasks
 from c.weather     import weather
 from lib.framework import ControllerPublic
-from lib.framework import json_encode
 from lib.framework import page
 from lib.framework import returnAs
 from lib.framework import t
@@ -76,7 +75,7 @@ class ww(ControllerPublic):
             _class='flex-col-stretch flex-expand',
             style='flex-wrap: wrap;',
             )
-        for msg in ('weather', 'tasks', 'food'):
-            jsMsg = json_encode(msg)
-            yield t.script(f'setInterval(framework.process, 1000 * 60 * 15, {jsMsg});')
+        yield t.script('setInterval(framework.process, 1000 * 60 * 15, "weather");')
+        yield t.script('setInterval(framework.process, 1000 * 60 * 15, "tasks");')
+        yield t.script('setInterval(framework.process, 1000 * 60 * 15, "food");')
         yield t.script('setInterval(framework.process, 1000 * 60 * 60 * 5, "agenda");')

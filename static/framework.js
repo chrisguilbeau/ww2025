@@ -43,6 +43,7 @@ var framework = {
     },
     process: function(message){
         console.log(message);
+        console.log(message === 'food');
         switch (message){
             case 'connected':
                 break;
