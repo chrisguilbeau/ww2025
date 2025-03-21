@@ -10,25 +10,34 @@ import os
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']
 
-@cacheOnDiskWithPickle('google_calendar_events.pkl')
-def getGoogleCalendarEvents():
+def get_credentials():
     creds = None
     # token.json stores the user's access and refresh tokens.
     if os.path.exists('token.json'):
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-
     # If there are no valid credentials, let the user log in.
     if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
+        # if creds and creds.expired and creds.refresh_token:
+        if True:
+            print("Refreshing Google Calendar access token.")
+            # Refresh the access token using the refresh token.
             creds.refresh(Request())
         else:
+            print("Requesting Google Calendar access token.")
+            # Request offline access to ensure a refresh token is issued.
             flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-            creds = flow.run_local_server(port=0)
+            creds = flow.run_local_server(port=0, access_type='offline')
         # Save the credentials for the next run.
         with open('token.json', 'w') as token:
             token.write(creds.to_json())
+    print("Google Calendar access token obtained.")
+    return creds
 
+@cacheOnDiskWithPickle('google_calendar_events.pkl')
+def getGoogleCalendarEvents():
+    creds = get_credentials()
     service = build('calendar', 'v3', credentials=creds)
+
     utcnow = datetime.datetime.utcnow()
     estnow = utcnow - datetime.timedelta(hours=4)
     now = estnow.isoformat() + "Z"  # 'Z' indicates UTC time
@@ -40,10 +49,6 @@ def getGoogleCalendarEvents():
 
     all_events = []
 
-    # Iterate over each calendar and fetch events.
-    print('!!!')
-    print(now)
-    print(monthLater)
     for calendar in calendars:
         cal_id = calendar['id']
         events_result = service.events().list(
@@ -73,4 +78,3 @@ def getGoogleCalendarEvents():
     all_events.sort(key=get_event_start)
 
     return all_events
-
