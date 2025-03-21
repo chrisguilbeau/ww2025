@@ -17,8 +17,7 @@ def get_credentials():
         creds = Credentials.from_authorized_user_file('token.json', SCOPES)
     # If there are no valid credentials, let the user log in.
     if not creds or not creds.valid:
-        # if creds and creds.expired and creds.refresh_token:
-        if True:
+        if creds and creds.expired and creds.refresh_token:
             print("Refreshing Google Calendar access token.")
             # Refresh the access token using the refresh token.
             creds.refresh(Request())
