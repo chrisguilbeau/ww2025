@@ -4,6 +4,7 @@ from lib.framework import page
 from lib.framework import returnAs
 from lib.framework import t
 from requests      import get
+from datetime      import datetime
 
 '''
 // example output
@@ -1381,18 +1382,17 @@ def getWttrIn(zip):
 
 def nextThreeDays(dct):
     for i, day in enumerate(dct['weather']):
-        from datetime import datetime
         dayName = datetime.strptime(day['date'], '%Y-%m-%d').strftime('%A')
         if i == 0:
             dayName = 'Today'
         low = day['mintempF']
         high = day['maxtempF']
         yield t.div(
+            t.div(style='height: 3rem; border-left: 1px solid black;'),
             t.h2(dayName),
             t.h4(day['hourly'][4]['weatherDesc'][0]['value']),
             t.h3(f'{high}&deg;F', style='color: red;'),
             t.h3(f'{low}&deg;F', style='color: blue;'),
-            t.div(style='height: 3rem; border-right: 1px solid black;'),
             _class='flex-row flex-center flex-gap',
             )
 
@@ -1409,18 +1409,8 @@ class weather(ControllerPublic):
     def get(self):
         dct = getWttrIn('05466')
         return t.div(
-            # current feelslike f
-            t.h1('Now'),
-            t.h1(dct['current_condition'][0]['FeelsLikeF'] + '&deg;F'),
-            t.h1(dct['current_condition'][0]['weatherDesc'][0]['value']),
-            t.div(style='height: 3rem; border-right: 1px solid black;'),
+            t.pre(get('https://wttr.in/Ripton,VT?u&format=%l:+%c+%t+(%f)+%w+%h').text),
             nextThreeDays(dct),
             _class='flex-row flex-center flex-gap',
             style='flex-wrap: wrap;',
             )
-        return '''
-<a class="weatherwidget-io" href="https://forecast7.com/en/43d97n73d03/ripton/?unit=us" data-theme="pure" >Ripton, VT, USA</a>
-<script>
-!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src='https://weatherwidget.io/js/widget.min.js';fjs.parentNode.insertBefore(js,fjs);}}(document,'script','weatherwidget-io-js');
-</script>
-        '''
