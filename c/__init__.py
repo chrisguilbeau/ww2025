@@ -35,7 +35,8 @@ class timeanddate(ControllerPublic):
         yield '--'
         yield t.script('ww.timeAndDateInit();')
 
-def container(controller, mobileUrl, _class='', interval=15):
+def container(controller, mobileUrl, _class='', interval=15, id=None):
+    id = id or controller.__name__
     return t.div(
         t.a(
             '&#128241;',
@@ -49,7 +50,7 @@ def container(controller, mobileUrl, _class='', interval=15):
                 opacity: 0.5;
                 ''') if mobileUrl else '',
         t.div(ww.clientRender(controller.url), _class='flex-grow'),
-        t.script(f'setInterval(framework.process, 1000 * 60 * {interval}, "{controller.name}");'),
+        t.script(f'setInterval(framework.process, 1000 * 60 * {interval}, "{id}");'),
         _class='ww-cell flex-col-stretch ' + _class,
         style='position: relative;',
         )
