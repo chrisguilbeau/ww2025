@@ -1,5 +1,10 @@
 var framework = {
     es: null,
+    clientRender: function(url, id){
+        $.get(url, function(data){
+            $('#' + id).replaceWith(data);
+        });
+    },
     prompt: function(url, params){
         let html = $('html');
         let screen = $('<div/>', {class: 'action-screen'});

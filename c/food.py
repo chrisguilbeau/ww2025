@@ -10,16 +10,16 @@ from m.food        import Food
 
 import datetime
 
+headStuff = (
+    t.link(rel='stylesheet', href='/static/food.css'),
+    t.script(stream.getInitJs()),
+    )
+
 class index(ControllerPublic):
     def get(self, *args, **kwargs):
         return page(
             title='Wonder Wall - Food',
-            headStuff=(
-                t.title('Wonder Wall - Food'),
-                t.script(src='/static/food.js'),
-                t.link(rel='stylesheet', href='/static/food.css'),
-                t.script(stream.getInitJs()),
-                ),
+            headStuff=headStuff,
             bodyStuff=food.getNow(),
             )
 

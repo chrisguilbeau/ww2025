@@ -1,7 +1,7 @@
 from c             import agenda
 from c             import food
 from c             import tasks
-from c.weather     import weather
+from c             import weather
 from lib.framework import ControllerPublic
 from lib.framework import page
 from lib.framework import returnAs
@@ -15,6 +15,9 @@ class index(ControllerPublic):
                 t.title('Wonder Wall'),
                 t.script(src='/static/ww.js'),
                 t.link(rel='stylesheet', href='/static/ww.css'),
+                *tasks.headStuff,
+                *food.headStuff,
+                *agenda.headStuff,
                 ),
             bodyStuff=ww.getNow(),
             )
@@ -32,12 +35,11 @@ class timeanddate(ControllerPublic):
         # yield t.span(datetime.datetime.now().strftime('%A %B %d'))
         # yield t.span(datetime.datetime.now().strftime('%-I:%M %p'))
 
-def container(controller, _class=''):
-    url = controller.index.url
+def container(controller, mobileUrl, _class=''):
     return t.div(
         t.a(
             '&#128241;',
-            href=url,
+            href=mobileUrl,
             style='''
                 position: absolute;
                 top: 0;
@@ -45,8 +47,8 @@ def container(controller, _class=''):
                 font-size: 2em;
                 text-decoration: none;
                 opacity: 0.5;
-                '''),
-        t.iframe(src=url, _class='flex-grow'),
+                ''') if mobileUrl else '',
+        t.div(ww.clientRender(controller.url), _class='flex-grow'),
         _class='ww-cell flex-col-stretch ' + _class,
         style='position: relative;',
         )
@@ -61,19 +63,18 @@ class ww(ControllerPublic):
         yield t.div(
             t.div(
                 timeanddate.getNow(),
-                weather.getNow(),
+                container(weather.weather, None),
                 _class='flex-row-stretch',
                 id='ww-top',
                 ),
             t.div(
-                container(agenda),
-                container(tasks),
-                container(food, _class='flex-grow'),
+                container(agenda.agenda, agenda.index.url),
+                container(tasks.tasks, tasks.index.url),
+                container(food.food, food.index.url, _class='flex-grow'),
                 _class='flex-row flex-grow',
                 id='ww-main',
                 ),
             _class='flex-col-stretch flex-expand',
-            style='flex-wrap: wrap;',
             )
         yield t.script('setInterval(framework.process, 1000 * 60 * 15, "weather");')
         yield t.script('setInterval(framework.process, 1000 * 60 * 15, "tasks");')

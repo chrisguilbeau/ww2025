@@ -9,15 +9,17 @@ from lib.framework import page
 from m.tasks       import Task
 from time          import time
 
+headStuff = (
+    t.script(src='/static/tasks.js'),
+    t.link(rel='stylesheet', href='/static/tasks.css'),
+    t.script(stream.getInitJs()),
+    )
+
 class index(ControllerPublic):
     def get(self):
         return page(
-            headStuff=(
-                t.title('Wonder Wall - Ta Da List'),
-                t.script(src='/static/tasks.js'),
-                t.link(rel='stylesheet', href='/static/tasks.css'),
-                t.script(stream.getInitJs()),
-                ),
+            title='Wonder Wall - Ta Da List',
+            headStuff=headStuff,
             bodyStuff=tasks.getNow(),
             )
 

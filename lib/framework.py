@@ -9,6 +9,18 @@ from json           import loads as json_decode
 from lib.controller import Controller
 
 class ControllerPublic(Controller):
+    @classmethod
+    def clientRender(cls, url):
+        id = Ids().getId()
+        jsId = json_encode(id)
+        jsUrl = json_encode(url)
+        return t.div(
+            t.img(src='/static/kappa.svg'),
+            t.script(f'framework.clientRender({jsUrl}, {jsId});'),
+            id=id,
+            _class='flex-row-stretch flex-grow flex-center',
+            style='justify-content: center;',
+            )
     def doAuth(self):
         pass
 

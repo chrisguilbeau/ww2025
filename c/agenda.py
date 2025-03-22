@@ -10,14 +10,15 @@ from operator      import itemgetter
 
 import datetime
 
+headStuff = (
+    t.link(rel='stylesheet', href='/static/agenda.css'),
+    )
+
 class index(ControllerPublic):
     def get(self):
         return page(
             title='Wonder Wall - Agenda',
-            headStuff=(
-                t.title('Wonder Wall - Agenda'),
-                t.link(rel='stylesheet', href='/static/agenda.css'),
-                ),
+            headStuff=headStuff,
             bodyStuff=agenda.getNow(),
             )
 
