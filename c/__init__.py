@@ -2,6 +2,7 @@ from c             import agenda
 from c             import food
 from c             import tasks
 from c             import weather
+from c.stream      import stream
 from lib.framework import ControllerPublic
 from lib.framework import page
 from lib.framework import returnAs
@@ -18,6 +19,7 @@ class index(ControllerPublic):
                 *tasks.headStuff,
                 *food.headStuff,
                 *agenda.headStuff,
+                t.script(stream.getInitJs()),
                 ),
             bodyStuff=ww.getNow(),
             )
@@ -32,10 +34,8 @@ class timeanddate(ControllerPublic):
         '''
         yield '--'
         yield t.script('ww.timeAndDateInit();')
-        # yield t.span(datetime.datetime.now().strftime('%A %B %d'))
-        # yield t.span(datetime.datetime.now().strftime('%-I:%M %p'))
 
-def container(controller, mobileUrl, _class=''):
+def container(controller, mobileUrl, _class='', interval=15):
     return t.div(
         t.a(
             '&#128241;',
@@ -49,6 +49,7 @@ def container(controller, mobileUrl, _class=''):
                 opacity: 0.5;
                 ''') if mobileUrl else '',
         t.div(ww.clientRender(controller.url), _class='flex-grow'),
+        t.script(f'setInterval(framework.process, 1000 * 60 * {interval}, "{controller.name}");'),
         _class='ww-cell flex-col-stretch ' + _class,
         style='position: relative;',
         )

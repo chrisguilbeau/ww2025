@@ -21,6 +21,12 @@ iframe{
     min-width: 20rem;
 }
 
+.ww-load{
+    height: 100%;
+    width: 100%;
+    background: url('/static/kappa.svg') no-repeat center;
+}
+
 #timeanddate{
     font-size: 2rem;
     font-weight: normal;

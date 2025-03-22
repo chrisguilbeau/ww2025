@@ -12,7 +12,6 @@ from time          import time
 headStuff = (
     t.script(src='/static/tasks.js'),
     t.link(rel='stylesheet', href='/static/tasks.css'),
-    t.script(stream.getInitJs()),
     )
 
 class index(ControllerPublic):
@@ -24,6 +23,12 @@ class index(ControllerPublic):
             )
 
 class tasks(Action):
+    @returnAs(
+        t.div,
+        _class='flex-col-stretch flex-gap',
+        id='tasks',
+        **{'data-url': '/tasks/tasks'},
+        )
     def get(self):
         return t.div(
             t.h1('Tada List'),
