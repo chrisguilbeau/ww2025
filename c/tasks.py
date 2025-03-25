@@ -12,6 +12,8 @@ from time          import time
 headStuff = (
     t.script(src='/static/tasks.js'),
     t.link(rel='stylesheet', href='/static/tasks.css'),
+    t.script('setInterval(framework.process, 1000 * 60 * 15, "tasks");'),
+    t.script(stream.getInitJs()),
     )
 
 class index(ControllerPublic):

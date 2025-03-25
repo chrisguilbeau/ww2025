@@ -1400,6 +1400,9 @@ class index(ControllerPublic):
     @returnAs(t.div, id='weather', **{'data-url': '/weather/weather'})
     def get(self):
         return page(
+            headStuff=(
+                t.script('setInterval(framework.process, 1000 * 60 * 15, "weather");'),
+                ),
             bodyStuff=weather.getNow(),
             )
 

@@ -8,6 +8,7 @@ body, html{
 
 iframe{
     border: none;
+    height: 1rem;
 }
 
 #ww-main{
@@ -19,6 +20,7 @@ iframe{
     background-color: white;
     padding: 1rem;
     min-width: 20rem;
+    min-height: 1rem;
 }
 
 .ww-load{

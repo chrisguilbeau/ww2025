@@ -12,6 +12,7 @@ import datetime
 
 headStuff = (
     t.link(rel='stylesheet', href='/static/agenda.css'),
+    t.script('setInterval(framework.process, 1000 * 60 * 15, "agenda");'),
     )
 
 class index(ControllerPublic):
