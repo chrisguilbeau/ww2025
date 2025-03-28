@@ -1397,7 +1397,6 @@ def nextThreeDays(dct):
             )
 
 class index(ControllerPublic):
-    @returnAs(t.div, id='weather', **{'data-url': '/weather/weather'})
     def get(self):
         return page(
             headStuff=(
