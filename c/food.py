@@ -12,7 +12,6 @@ import datetime
 
 headStuff = (
     t.link(rel='stylesheet', href='/static/food.css'),
-    t.script('setInterval(framework.process, 1000 * 60 * 15, "food");'),
     t.script(stream.getInitJs()),
     )
 

@@ -1415,5 +1415,4 @@ class weather(ControllerPublic):
             t.pre(get('https://wttr.in/Ripton,VT?u&format=%l:+%c+%t+(%f)+%w+%h').text),
             nextThreeDays(dct),
             _class='flex-row flex-center flex-gap',
-            style='flex-wrap: wrap;',
             )

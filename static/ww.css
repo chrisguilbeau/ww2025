@@ -12,13 +12,11 @@ iframe{
 }
 
 #ww-main{
-    padding: 1rem;
 }
 
 .ww-cell{
     overflow: auto;
     background-color: white;
-    padding: 1rem;
     min-width: 20rem;
     min-height: 1rem;
 }

@@ -48,7 +48,6 @@ var framework = {
     },
     process: function(message){
         console.log(message);
-        console.log(message === 'food');
         switch (message){
             case 'connected':
                 break;
@@ -56,6 +55,7 @@ var framework = {
                 break;
             default:
                 let element = $('#' + message);
+                if (!element.length) break;
                 url = element.data('url');
                 $.ajax({
                     method: 'GET',

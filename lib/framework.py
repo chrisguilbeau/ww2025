@@ -104,7 +104,6 @@ class Stream(Action):
     announcer = None
     messageProcessor = None
     def __init_subclass__(cls, **kwargs):
-        print('NEW SUBCLASS!!!')
         super().__init_subclass__(**kwargs)
         assert cls.announcer, 'Stream subclass must define announcer'
         assert cls.messageProcessor, 'Stream subclass must define messageProcessor'
