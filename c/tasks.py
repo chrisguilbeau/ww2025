@@ -1,5 +1,6 @@
 from c.stream      import stream
 from cgpy.lets     import returnAs
+from cgpy.lets     import let
 from cgpy.tags     import t
 from datetime      import datetime
 from lib.framework import Action
@@ -73,9 +74,39 @@ class task(Action):
             done = f'{dt:%-I:%M %p}'
         else:
             done = ''
+        checkEmojiHtml = '&#x2705;'
+        undoEmojiHtml = '&#x21A9;'
+        @let
+        def color():
+            '''
+            return a random crazy color, it doesn't matter which'
+            '''
+            if row.done:
+                return '#f5f5f5'
+            funkyColorList = (
+                # lime green
+                (0, 255, 0),
+                # hot pink
+                (255, 105, 180),
+                # cyan
+                (0, 255, 255),
+                # yellow
+                (255, 255, 0),
+                # orange
+                (255, 165, 0),
+                # purple
+                (128, 0, 128),
+                # red
+                (255, 0, 0),
+                # blue
+                (0, 0, 255),
+                )
+            index = row.id % len(funkyColorList)
+            r, g, b = funkyColorList[index]
+            return f'rgb({r}, {g}, {b})'
         return t.div(
             t.button(
-                'DONE' if not row.done else 'UNDO',
+                checkEmojiHtml if not row.done else undoEmojiHtml,
                 onclick=self.getActJs(
                     id=row.id,
                     value=self.byId(ids.task),
@@ -86,6 +117,7 @@ class task(Action):
                 value=html_encode(row.task),
                 id=ids.task,
                 disabled=bool(row.done),
+                type='text',
                 onchange=self.getActJs(
                     id=row.id,
                     value=self.byId(ids.task),
@@ -96,7 +128,8 @@ class task(Action):
             t.span(html_encode(done), style='white-space: nowrap;') if done else '',
             id='task' + str(row.id),
             **{'data-url': f'/tasks/task/{row.id}'},
-            _class='flex-row flex-gap',
+            style=f'background-color: {color};',
+            _class='flex-row flex-gap task',
             )
     def validate(self, id, value, done):
         pass
