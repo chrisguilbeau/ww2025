@@ -68,7 +68,7 @@ class ww(ControllerPublic):
                 ),
             t.div(
                 container(agenda),
-                container(tasks),
+                container(tasks,_class='flex-grow'),
                 container(food, _class='flex-grow'),
                 _class='flex-row flex-grow',
                 id='ww-main',
