@@ -7,21 +7,17 @@ MAX_SEC = 60 * 60 * 24 * 7  # 1 week
 def formatMessage(msg):
     return f"data: {msg}\n\n"
 
-def getTailGen(
-        filePath,
-        timeDict,
-        keepalive_interval=30,
-        ):
+def getTailGen(filePath, timeDict, keepAliveInterval=30):
     """
     Tails the given file and yields new lines as SSE events.
     If no new line is available, it waits briefly, and only sends a
-    keepalive comment every `keepalive_interval` seconds.
+    keepalive comment every `keepAliveInterval` seconds.
     """
-    mil = 0.1
-    milCount = 0
+    tenth = 0.1
+    tenthCount = 0
     secCount = 0
     timeDict = timeDict or {}
-    timeDict['keepalive'] = keepalive_interval
+    timeDict['keepalive'] = keepAliveInterval
     with open(filePath, 'r') as f:
         f.seek(0, os.SEEK_END)
         while True:
@@ -29,17 +25,18 @@ def getTailGen(
             if line:
                 yield formatMessage(line.strip())
             # Sleep briefly to avoid busy looping.
-            time.sleep(mil)
-            milCount += 1
-            if milCount == 10:
-                milCount = 0
+            time.sleep(tenth)
+            tenthCount += 1
+            # only process every 10th of a second
+            if tenthCount == 10:
                 secCount += 1
                 for msg, secs in timeDict.items():
                     if secCount % secs == 0:
-                        print(msg)
                         yield formatMessage(msg)
-            if secCount >= MAX_SEC:
-                secCount = 0
+                # reset counters if necessary
+                tenthCount = 0
+                if secCount >= MAX_SEC:
+                    secCount = 0
 
 class MessageAnnouncer:
     timeLoopThread = None

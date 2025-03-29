@@ -58,7 +58,130 @@ def getGoogleCalendarEvents():
             orderBy='startTime'
         ).execute()
         events = events_result.get('items', [])
-        all_events.extend(events)
+        # Process events to split multi-day events into daily occurrences
+        processed_events = []
+        for event in events:
+            start = event.get('start', {})
+            end = event.get('end', {})
+
+            # Get start and end datetime/date
+            start_dt = start.get('dateTime') or start.get('date')
+            end_dt = end.get('dateTime') or end.get('date')
+
+            # Convert to datetime objects
+            try:
+                # Handle date strings (all-day events)
+                if 'T' not in start_dt:
+                    start_date = datetime.datetime.fromisoformat(start_dt)
+                    end_date = datetime.datetime.fromisoformat(end_dt) - datetime.timedelta(days=1)  # End date is exclusive
+
+                    # Check if this is a multi-day event
+                    is_multi_day = (end_date - start_date).days > 0
+
+                    # Create an event for each day
+                    current_date = start_date
+                    while current_date <= end_date:
+                        # Skip days that have already passed
+                        current_date_utc = current_date.replace(tzinfo=datetime.timezone.utc)
+                        if current_date_utc >= estnow.replace(tzinfo=datetime.timezone.utc):
+                            daily_event = event.copy()
+                            date_str = current_date.isoformat()
+                            daily_event['start'] = {'date': date_str}
+                            daily_event['end'] = {'date': (current_date + datetime.timedelta(days=1)).isoformat()}
+                            processed_events.append(daily_event)
+                        current_date += datetime.timedelta(days=1)
+                # Handle datetime strings (timed events)
+                else:
+                    start_dt_obj = datetime.datetime.fromisoformat(start_dt.replace('Z', '+00:00'))
+                    end_dt_obj = datetime.datetime.fromisoformat(end_dt.replace('Z', '+00:00'))
+
+                    # Check if event spans multiple days
+                    is_multi_day = start_dt_obj.date() != end_dt_obj.date()
+
+                    if is_multi_day:
+                        # First day (partial)
+                        first_day_end = datetime.datetime.combine(
+                            start_dt_obj.date(),
+                            datetime.time(23, 59, 59)
+                        ).replace(tzinfo=start_dt_obj.tzinfo)
+
+                        # Only include if the day hasn't fully passed
+                        if first_day_end >= estnow.replace(tzinfo=datetime.timezone.utc):
+                            daily_event = event.copy()
+                            daily_event['start'] = {'dateTime': start_dt}
+                            daily_event['end'] = {'dateTime': first_day_end.isoformat()}
+                            processed_events.append(daily_event)
+
+                        # Middle days (full days)
+                        current_date = start_dt_obj.date() + datetime.timedelta(days=1)
+                        while current_date < end_dt_obj.date():
+                            # Skip days that have already passed
+                            day_end = datetime.datetime.combine(
+                                current_date,
+                                datetime.time(23, 59, 59)
+                            ).replace(tzinfo=start_dt_obj.tzinfo)
+
+                            if day_end >= estnow.replace(tzinfo=datetime.timezone.utc):
+                                daily_event = event.copy()
+                                day_start = datetime.datetime.combine(
+                                    current_date,
+                                    datetime.time(0, 0)
+                                ).replace(tzinfo=start_dt_obj.tzinfo)
+
+                                daily_event['start'] = {'dateTime': day_start.isoformat()}
+                                daily_event['end'] = {'dateTime': day_end.isoformat()}
+                                processed_events.append(daily_event)
+                            current_date += datetime.timedelta(days=1)
+
+                        # Last day (partial)
+                        if current_date == end_dt_obj.date():
+                            # Only include if this day hasn't passed
+                            if end_dt_obj >= estnow.replace(tzinfo=datetime.timezone.utc):
+                                last_day_start = datetime.datetime.combine(
+                                    end_dt_obj.date(),
+                                    datetime.time(0, 0)
+                                ).replace(tzinfo=end_dt_obj.tzinfo)
+
+                                daily_event = event.copy()
+                                daily_event['start'] = {'dateTime': last_day_start.isoformat()}
+                                daily_event['end'] = {'dateTime': end_dt}
+                                processed_events.append(daily_event)
+                    else:
+                        # Single day event, no splitting needed
+                        processed_events.append(event)
+            except Exception as e:
+                # If there's an error processing this event, just include it as-is
+                processed_events.append(event)
+
+        # Filter out multi-day events and add the processed events to our list
+        filtered_events = []
+        for event in events:
+            start = event.get('start', {})
+            end = event.get('end', {})
+
+            # Get start and end datetime/date
+            start_dt = start.get('dateTime') or start.get('date')
+            end_dt = end.get('dateTime') or end.get('date')
+
+            # Determine if this is a multi-day event
+            is_multi_day = False
+            try:
+                if 'T' not in start_dt:  # All-day event
+                    start_date = datetime.datetime.fromisoformat(start_dt)
+                    end_date = datetime.datetime.fromisoformat(end_dt)
+                    is_multi_day = (end_date - start_date).days > 1  # More than 1 day (accounting for exclusive end date)
+                else:  # Timed event
+                    start_dt_obj = datetime.datetime.fromisoformat(start_dt.replace('Z', '+00:00'))
+                    end_dt_obj = datetime.datetime.fromisoformat(end_dt.replace('Z', '+00:00'))
+                    is_multi_day = start_dt_obj.date() != end_dt_obj.date()
+            except Exception:
+                pass
+
+            # Only include non-multi-day events in our filtered list
+            if not is_multi_day:
+                filtered_events.append(event)
+
+        all_events.extend(filtered_events)
 
     def get_event_start(event):
         """Extract and normalize the start datetime of an event."""
