@@ -1,4 +1,5 @@
 from c.stream      import stream
+from cgpy.lets     import letAs
 from cgpy.lets     import returnAs
 from cgpy.tags     import t
 from lib.framework import Action
@@ -113,37 +114,55 @@ class editmeal(Action):
         return datetime.datetime(year, 1, 1) + datetime.timedelta(days=doy-1)
     @returnAs(t.div, _class='flex-col flex-gap')
     def get(self, year, doy, meal):
-        dt = self.getDt(year, doy)
-        dayName = dt.strftime('%A')
-        mealName = ['Breakfast', 'Lunch', 'Dinner'][int(meal)-1]
         ids = self.Ids()
-        row = Food.getOne(year=year, doy=doy, meal=meal)
-        yield t.h1(f'{dayName} {mealName}')
-        yield t.input(
-            placeholder='Description',
-            id=ids.desc,
-            value=html_encode(row.desc) if row else '',
-            )
-        yield t.div(
-            t.button('Save', onclick=editmeal.getActJs(
+        @let
+        def formInner():
+            dt = self.getDt(year, doy)
+            dayName = dt.strftime('%A')
+            mealName = ['Breakfast', 'Lunch', 'Dinner'][int(meal)-1]
+            row = Food.getOne(year=year, doy=doy, meal=meal)
+            yield t.h1(f'{dayName} {mealName}')
+            yield t.input(
+                placeholder='Description',
+                id=ids.desc,
+                value=html_encode(row.desc) if row else '',
+                list=ids.datalist,
+                autofocus=True,
+                onfocus="this.select()",
+                )
+            @letAs(t.datalist, id=ids.datalist)
+            def datalist():
+                for desc in Food.getAutocompleteItems():
+                    yield t.option(desc)
+            yield datalist
+            yield t.div(
+                t.button('Save', type='submit'),
+                t.button('Cancel', onclick='framework.killPrompt(event.target);'),
+                t.button('Delete', onclick=editmeal.getActJs(
+                    year=year,
+                    doy=doy,
+                    meal=meal,
+                    desc=None,
+                    )),
+                _class='flex-row flex-gap',
+                )
+            yield t.script(
+                f'''
+                document.getElementById('{ids.desc}').focus();
+                ''')
+        return t.form(
+            formInner,
+            onsubmit='''
+                event.preventDefault();
+                ''' + editmeal.getActJs(
                 year=year,
                 doy=doy,
                 meal=meal,
                 desc=self.byId(ids.desc),
-                )),
-            t.button('Cancel', onclick='framework.killPrompt(event.target);'),
-            t.button('Delete', onclick=editmeal.getActJs(
-                year=year,
-                doy=doy,
-                meal=meal,
-                desc=None,
-                )),
-            _class='flex-row flex-gap',
+                ),
+            action='javascript:void(0)',
+            _class='flex-col-stretch flex-gap',
             )
-        yield t.script(
-            f'''
-            document.getElementById('{ids.desc}').focus();
-            ''')
     def validate(self, year, doy, meal, desc):
         pass
     def act(self, year, doy, meal, desc):

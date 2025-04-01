@@ -117,6 +117,7 @@ class task(Action):
                 id=ids.task,
                 disabled=bool(row.done),
                 type='text',
+                onfocus="this.select()",
                 onchange=self.getActJs(
                     id=row.id,
                     value=self.byId(ids.task),

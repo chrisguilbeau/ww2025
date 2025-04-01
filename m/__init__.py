@@ -53,8 +53,11 @@ class Table():
         print(sql)
         print(params)
         c.execute(sql, params)
-        for row in c.fetchall():
-            yield self.Row(*row)
+        rows = c.fetchall()
+        fields = [d[0] for d in c.description]
+        namedRow = namedtuple('Row', fields)
+        for row in rows:
+            yield namedRow(*row)
     def getAll(self, **kwargs):
         params = []
         @letAs(' and '.join)

@@ -11,6 +11,16 @@ class Food(Table):
         'desc text',
         'status integer',
         )
+    def getAutocompleteItems(self):
+        sql = '''
+            select count(*) as count, desc
+            from food
+            where desc is not null
+            group by desc
+            order by count desc
+            '''
+        for row in self.select(sql=sql):
+            yield row.desc
     def getNextSevenDays(self):
         sql = '''
         select * from food
