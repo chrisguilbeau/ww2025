@@ -10,7 +10,8 @@ from lib.controller import Controller
 
 class ControllerPublic(Controller):
     @classmethod
-    def clientRender(cls, url):
+    def clientRender(cls, url=None):
+        url = url or cls.url
         id = Ids().getId()
         jsId = json_encode(id)
         jsUrl = json_encode(url)

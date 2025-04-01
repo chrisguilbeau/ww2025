@@ -2,6 +2,7 @@ from c             import agenda
 from c             import food
 from c             import tasks
 from c             import weather
+from c.stream      import stream
 from lib.framework import ControllerPublic
 from lib.framework import page
 from lib.framework import returnAs
@@ -18,6 +19,7 @@ class index(ControllerPublic):
                 *tasks.headStuff,
                 *food.headStuff,
                 *agenda.headStuff,
+                t.script(stream.getInitJs()),
                 ),
             bodyStuff=ww.getNow(),
             )
@@ -35,6 +37,8 @@ class timeanddate(ControllerPublic):
 
 def container(module, _class=''):
     url = module.index.url
+    innerName = module.__name__.split('.')[-1]
+    innerController = getattr(module, innerName)
     return t.div(
         t.a(
             '&#128241;',
@@ -46,10 +50,16 @@ def container(module, _class=''):
                 font-size: 2em;
                 text-decoration: none;
                 opacity: 0.5;
+                z-index: 1;
                 '''),
-        t.iframe(src=url, _class='flex-grow'),
+        t.div(
+            innerController.clientRender(),
+            _class='flex-grow flex-expand',
+            style='overflow: auto;',
+            ),
+        # t.iframe(src=url, _class='flex-grow'),
         _class='ww-cell flex-col-stretch ' + _class,
-        style='position: relative;',
+        style='position: relative; margin: 0.2rem;',
         )
 
 class ww(ControllerPublic):
@@ -68,7 +78,7 @@ class ww(ControllerPublic):
                 ),
             t.div(
                 container(agenda),
-                container(tasks,_class='flex-grow'),
+                container(tasks, _class='flex-grow'),
                 container(food, _class='flex-grow'),
                 _class='flex-row flex-grow',
                 id='ww-main',

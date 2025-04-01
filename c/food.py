@@ -12,7 +12,7 @@ import datetime
 
 headStuff = (
     t.link(rel='stylesheet', href='/static/food.css'),
-    t.script(stream.getInitJs()),
+    # t.script(stream.getInitJs()),
     )
 
 class index(ControllerPublic):
